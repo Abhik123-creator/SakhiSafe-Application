@@ -75,7 +75,7 @@ export function useMeQuery() {
 export function useHealthQuery() {
   return useQuery({
     queryKey: queryKeys.health,
-    queryFn: () => apiGet<HealthStatus>("/health"),
+    queryFn: () => apiGet<HealthStatus>(`${API_PREFIX}/health`),
     refetchInterval: 30_000,
   });
 }

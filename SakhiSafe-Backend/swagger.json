@@ -1,25 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/api/v1/audit": {
-      "get": {
-        "operationId": "AuditController_findAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "tags": [
-          "audit"
-        ]
-      }
-    },
     "/api/v1/auth/login": {
       "post": {
         "operationId": "AuthController_login",
@@ -912,7 +893,26 @@
         ]
       }
     },
-    "/health": {
+    "/api/v1/audit": {
+      "get": {
+        "operationId": "AuditController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "tags": [
+          "audit"
+        ]
+      }
+    },
+    "/api/v1/health": {
       "get": {
         "operationId": "HealthController_check",
         "parameters": [],
@@ -922,22 +922,22 @@
           }
         },
         "tags": [
-          "health"
+          "Dashboard Health"
         ]
       }
     }
   },
   "info": {
-    "title": "SakhiSafe API",
-    "description": "SakhiSafe backend API",
-    "version": "0.1.0",
+    "title": "SakhiSafe Dashboard API",
+    "description": "APIs used by the Next.js dashboard and organization/admin users.",
+    "version": "1.0",
     "contact": {}
   },
   "tags": [],
   "servers": [],
   "components": {
     "securitySchemes": {
-      "bearer": {
+      "user-jwt": {
         "scheme": "bearer",
         "bearerFormat": "JWT",
         "type": "http"

@@ -1,25 +1,19 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
+import { RouterModule } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { NestLensModule } from 'nestlens';
 import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
-import { AuditModule } from './audit/audit.module';
+import { ApiModule } from './api/api.module';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { maskSensitiveData } from './common/utils/mask-sensitive-data.util';
-import { AuthModule } from './auth/auth.module';
-import { CasesModule } from './cases/cases.module';
-import { CareSeekersModule } from './care-seekers/care-seekers.module';
-import { HealthModule } from './health/health.module';
-import { ModulesModule } from './modules/modules.module';
-import { OrganizationsModule } from './organizations/organizations.module';
-import { PermissionsModule } from './permissions/permissions.module';
+import { InternalModule } from './internal/internal.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { RolesModule } from './roles/roles.module';
-import { UsersModule } from './users/users.module';
+import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
   imports: [
@@ -89,17 +83,15 @@ import { UsersModule } from './users/users.module';
         job: { enabled: false },
       },
     }),
+    RouterModule.register([
+      { path: 'api/v1', module: ApiModule },
+      { path: 'internal/v1', module: InternalModule },
+      { path: 'webhooks', module: WebhooksModule },
+    ]),
     PrismaModule,
-    AuditModule,
-    AuthModule,
-    UsersModule,
-    RolesModule,
-    ModulesModule,
-    PermissionsModule,
-    OrganizationsModule,
-    CareSeekersModule,
-    CasesModule,
-    HealthModule,
+    ApiModule,
+    InternalModule,
+    WebhooksModule,
   ],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },

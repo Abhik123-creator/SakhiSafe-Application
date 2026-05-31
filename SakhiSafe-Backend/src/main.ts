@@ -1,7 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -10,7 +9,7 @@ import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
-import { createSwaggerDocument } from './swagger';
+import { setupSwagger } from './common/swagger/swagger.setup';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -21,7 +20,6 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.use(cookieParser());
-  app.setGlobalPrefix('api/v1', { exclude: ['health', 'api/docs', 'nestlens'] });
   app.enableCors({
     origin: config.get<string>('app.frontendUrl'),
     credentials: true,
@@ -37,9 +35,8 @@ async function bootstrap() {
   app.useGlobalFilters(new GlobalExceptionFilter(config));
   app.useGlobalInterceptors(new TransformResponseInterceptor());
 
-  if (config.get<string>('app.nodeEnv') !== 'production') {
-    const document = createSwaggerDocument(app);
-    SwaggerModule.setup('api/docs', app, document);
+  if (process.env.ENABLE_SWAGGER === 'true') {
+    setupSwagger(app);
   }
 
   await app.listen(config.get<number>('app.port') ?? 4000);

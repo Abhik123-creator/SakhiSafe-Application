@@ -31,7 +31,19 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
+.env.*
+!.env.example
 .env*.local
+
+# local package manager cache
+.npm-cache/
+
+# generated backend OpenAPI documents
+/SakhiSafe-Backend/swagger.json
+/SakhiSafe-Backend/api-docs.json
+/SakhiSafe-Backend/internal-docs.json
+/SakhiSafe-Backend/webhook-docs.json
 
 # vercel
 .vercel
