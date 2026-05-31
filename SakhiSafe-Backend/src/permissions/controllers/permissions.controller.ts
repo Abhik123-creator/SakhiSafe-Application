@@ -12,7 +12,7 @@ import { PermissionsService } from '../services/permissions.service';
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(RoleName.SUPER_ADMIN)
-@Controller('roles/:roleId/permissions')
+@Controller('api/v1/roles/:roleId/permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 

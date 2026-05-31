@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { RouterModule } from '@nestjs/core';
 import { ApiModule } from '../src/api/api.module';
 import appConfig from '../src/config/app.config';
 import authConfig from '../src/config/auth.config';
@@ -18,11 +17,6 @@ import { WebhooksModule } from '../src/webhooks/webhooks.module';
       isGlobal: true,
       load: [appConfig, databaseConfig, authConfig],
     }),
-    RouterModule.register([
-      { path: 'api/v1', module: ApiModule },
-      { path: 'internal/v1', module: InternalModule },
-      { path: 'webhooks', module: WebhooksModule },
-    ]),
     ApiModule,
     InternalModule,
     WebhooksModule,

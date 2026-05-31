@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuditAction, ModuleKey, PermissionAction } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -14,7 +14,7 @@ import { CasesService } from '../services/cases.service';
 @ApiTags('cases')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
-@Controller('cases')
+@Controller('api/v1/cases')
 export class CasesController {
   constructor(private readonly casesService: CasesService) {}
 
@@ -22,6 +22,14 @@ export class CasesController {
   @RequirePermission(ModuleKey.CASES, PermissionAction.VIEW)
   findAll() {
     return this.casesService.findAll();
+  }
+
+  @Get('by-phone/:phone')
+  @RequirePermission(ModuleKey.CASES, PermissionAction.VIEW)
+  @ApiOperation({ summary: 'List cases by care seeker phone number' })
+  @ApiParam({ name: 'phone', example: '917003801171' })
+  findByPhone(@Param('phone') phone: string) {
+    return this.casesService.findByCareSeekerPhone(phone);
   }
 
   @Get(':id')

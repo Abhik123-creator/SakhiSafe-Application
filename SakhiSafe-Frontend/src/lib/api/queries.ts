@@ -27,10 +27,12 @@ export const queryKeys = {
   me: ["auth", "me"] as const,
   health: ["health"] as const,
   cases: ["cases"] as const,
+  casesByPhone: (phone: string) => ["cases", "by-phone", phone] as const,
   caseDetail: (id: string) => ["cases", id] as const,
   organizations: ["organizations"] as const,
   users: ["users"] as const,
   careSeekers: ["care-seekers"] as const,
+  careSeekerByPhone: (phone: string) => ["care-seekers", "by-phone", phone] as const,
   auditLogs: ["audit"] as const,
   modules: ["modules"] as const,
   roles: ["roles"] as const,
@@ -84,6 +86,14 @@ export function useCasesQuery() {
   return useQuery({ queryKey: queryKeys.cases, queryFn: () => apiGet<CaseRecord[]>(`${API_PREFIX}/cases`) });
 }
 
+export function useCasesByPhoneQuery(phone: string) {
+  return useQuery({
+    queryKey: queryKeys.casesByPhone(phone),
+    queryFn: () => apiGet<CaseRecord[]>(`${API_PREFIX}/cases/by-phone/${encodeURIComponent(phone)}`),
+    enabled: Boolean(phone),
+  });
+}
+
 export function useCreateCaseMutation() {
   const queryClient = useQueryClient();
 
@@ -125,6 +135,14 @@ export function useUsersQuery() {
 
 export function useCareSeekersQuery() {
   return useQuery({ queryKey: queryKeys.careSeekers, queryFn: () => apiGet<CareSeeker[]>(`${API_PREFIX}/care-seekers`) });
+}
+
+export function useCareSeekerByPhoneQuery(phone: string) {
+  return useQuery({
+    queryKey: queryKeys.careSeekerByPhone(phone),
+    queryFn: () => apiGet<CareSeeker>(`${API_PREFIX}/care-seekers/by-phone/${encodeURIComponent(phone)}`),
+    enabled: Boolean(phone),
+  });
 }
 
 export function useCreateCareSeekerMutation() {

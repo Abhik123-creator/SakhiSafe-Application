@@ -10,7 +10,7 @@ import { AuditService } from '../services/audit.service';
 @ApiTags('audit')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
-@Controller('audit')
+@Controller('api/v1/audit')
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 

@@ -15,6 +15,10 @@ export class CareSeekersRepository {
     return this.prisma.careSeeker.findFirst({ where: { id, deletedAt: null } });
   }
 
+  findByPhone(phone: string) {
+    return this.prisma.careSeeker.findFirst({ where: { phone, deletedAt: null } });
+  }
+
   create(dto: CreateCareSeekerDto) {
     return this.prisma.careSeeker.create({ data: dto });
   }

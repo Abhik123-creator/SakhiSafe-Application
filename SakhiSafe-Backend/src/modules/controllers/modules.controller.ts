@@ -13,7 +13,7 @@ import { ModulesService } from '../services/modules.service';
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(RoleName.SUPER_ADMIN)
-@Controller('modules')
+@Controller('api/v1/modules')
 export class ModulesController {
   constructor(private readonly modulesService: ModulesService) {}
 

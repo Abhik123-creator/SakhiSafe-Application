@@ -4,20 +4,7 @@ import { ApiModule } from '../../api/api.module';
 import { InternalModule } from '../../internal/internal.module';
 import { WebhooksModule } from '../../webhooks/webhooks.module';
 
-function normalizeDocumentPaths(document: OpenAPIObject, prefix: string) {
-  document.paths = Object.fromEntries(
-    Object.entries(document.paths).map(([path, definition]) => {
-      if (path.startsWith(prefix)) {
-        return [path, definition];
-      }
-      return [`${prefix}${path}`, definition];
-    }),
-  );
-  return document;
-}
-
 function filterDocumentPaths(document: OpenAPIObject, prefix: string) {
-  normalizeDocumentPaths(document, prefix);
   document.paths = Object.fromEntries(Object.entries(document.paths).filter(([path]) => path.startsWith(`${prefix}/`)));
   return document;
 }

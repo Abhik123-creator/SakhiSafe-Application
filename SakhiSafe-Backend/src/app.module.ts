@@ -1,13 +1,13 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
-import { RouterModule } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { NestLensModule } from 'nestlens';
 import appConfig from './config/app.config';
 import authConfig from './config/auth.config';
 import databaseConfig from './config/database.config';
 import { ApiModule } from './api/api.module';
+import { AuditCoreModule } from './audit/audit-core.module';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { maskSensitiveData } from './common/utils/mask-sensitive-data.util';
@@ -83,12 +83,8 @@ import { WebhooksModule } from './webhooks/webhooks.module';
         job: { enabled: false },
       },
     }),
-    RouterModule.register([
-      { path: 'api/v1', module: ApiModule },
-      { path: 'internal/v1', module: InternalModule },
-      { path: 'webhooks', module: WebhooksModule },
-    ]),
     PrismaModule,
+    AuditCoreModule,
     ApiModule,
     InternalModule,
     WebhooksModule,

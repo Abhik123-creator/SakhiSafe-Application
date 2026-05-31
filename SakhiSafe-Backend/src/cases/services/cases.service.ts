@@ -19,6 +19,10 @@ export class CasesService {
     return caseRecord;
   }
 
+  findByCareSeekerPhone(phone: string) {
+    return this.casesRepository.findByCareSeekerPhone(phone);
+  }
+
   create(dto: CreateCaseDto, createdById?: string) {
     return this.casesRepository.create({
       title: dto.title,

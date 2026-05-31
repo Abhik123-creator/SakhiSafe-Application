@@ -13,7 +13,7 @@ import { OrganizationsService } from '../services/organizations.service';
 @ApiTags('organizations')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
-@Controller('organizations')
+@Controller('api/v1/organizations')
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 

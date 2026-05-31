@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { AuditAction, ModuleKey, PermissionAction } from '@prisma/client';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { RequirePermission } from '../../common/decorators/require-permission.decorator';
@@ -12,7 +12,7 @@ import { CareSeekersService } from '../services/care-seekers.service';
 @ApiTags('care-seekers')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard, PermissionsGuard)
-@Controller('care-seekers')
+@Controller('api/v1/care-seekers')
 export class CareSeekersController {
   constructor(private readonly careSeekersService: CareSeekersService) {}
 
@@ -20,6 +20,14 @@ export class CareSeekersController {
   @RequirePermission(ModuleKey.CARE_SEEKERS, PermissionAction.VIEW)
   findAll() {
     return this.careSeekersService.findAll();
+  }
+
+  @Get('by-phone/:phone')
+  @RequirePermission(ModuleKey.CARE_SEEKERS, PermissionAction.VIEW)
+  @ApiOperation({ summary: 'Get care seeker by phone number' })
+  @ApiParam({ name: 'phone', example: '917003801171' })
+  findByPhone(@Param('phone') phone: string) {
+    return this.careSeekersService.findByPhone(phone);
   }
 
   @Get(':id')

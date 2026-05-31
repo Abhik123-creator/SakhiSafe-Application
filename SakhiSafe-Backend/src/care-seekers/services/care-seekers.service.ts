@@ -19,6 +19,14 @@ export class CareSeekersService {
     return careSeeker;
   }
 
+  async findByPhone(phone: string) {
+    const careSeeker = await this.careSeekersRepository.findByPhone(phone);
+    if (!careSeeker) {
+      throw new NotFoundException();
+    }
+    return careSeeker;
+  }
+
   create(dto: CreateCareSeekerDto) {
     return this.careSeekersRepository.create(dto);
   }

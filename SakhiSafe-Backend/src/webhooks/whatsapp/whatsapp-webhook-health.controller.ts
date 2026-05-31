@@ -3,7 +3,7 @@ import { ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Webhooks')
 @ApiSecurity('meta-signature')
-@Controller('health')
+@Controller('webhooks/health')
 export class WhatsAppWebhookHealthController {
   @Get()
   check() {
