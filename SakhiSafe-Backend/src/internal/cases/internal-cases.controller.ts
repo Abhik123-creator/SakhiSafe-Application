@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { SkipResponseTransform } from '../../common/decorators/skip-response-transform.decorator';
 import { CreateCaseDto } from '../../cases/dto/create-case.dto';
 import { UpdateCaseDto } from '../../cases/dto/update-case.dto';
 import { CasesService } from '../../cases/services/cases.service';
@@ -7,6 +8,7 @@ import { ServiceJwtGuard } from '../internal-auth/service-jwt.guard';
 
 @ApiTags('Internal Cases')
 @ApiBearerAuth('service-jwt')
+@SkipResponseTransform()
 @UseGuards(ServiceJwtGuard)
 @Controller('internal/v1/cases')
 export class InternalCasesController {

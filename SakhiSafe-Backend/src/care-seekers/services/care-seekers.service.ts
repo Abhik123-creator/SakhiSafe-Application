@@ -1,4 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { isAnonymousName, normalizePhone } from '../../common/utils/phone.util';
 import { CreateCareSeekerDto } from '../dto/create-care-seeker.dto';
 import { UpdateCareSeekerDto } from '../dto/update-care-seeker.dto';
 import { CareSeekersRepository } from '../repositories/care-seekers.repository';
@@ -20,18 +21,42 @@ export class CareSeekersService {
   }
 
   async findByPhone(phone: string) {
-    const careSeeker = await this.careSeekersRepository.findByPhone(phone);
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      throw new BadRequestException('Phone number is required');
+    }
+
+    const careSeeker = await this.careSeekersRepository.findByPhone(normalizedPhone);
     if (!careSeeker) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Care seeker not found for phone ${normalizedPhone}`);
     }
     return careSeeker;
   }
 
-  create(dto: CreateCareSeekerDto) {
-    return this.careSeekersRepository.create(dto);
+  async create(dto: CreateCareSeekerDto) {
+    const normalizedPhone = normalizePhone(dto.phone);
+    if (normalizedPhone) {
+      const existing = await this.careSeekersRepository.findByPhone(normalizedPhone);
+      if (existing) {
+        return existing;
+      }
+    }
+
+    return this.careSeekersRepository.create({
+      ...dto,
+      phone: normalizedPhone,
+    });
   }
 
-  update(id: string, dto: UpdateCareSeekerDto) {
-    return this.careSeekersRepository.update(id, dto);
+  async update(id: string, dto: UpdateCareSeekerDto) {
+    const existing = await this.findById(id);
+    const normalizedPhone = normalizePhone(dto.phone);
+    const shouldKeepExistingName = !isAnonymousName(existing.fullName) && isAnonymousName(dto.fullName);
+
+    return this.careSeekersRepository.update(id, {
+      ...dto,
+      fullName: shouldKeepExistingName ? undefined : dto.fullName,
+      phone: dto.phone === undefined ? undefined : normalizedPhone,
+    });
   }
 }

@@ -18,10 +18,14 @@ export class CasesRepository {
 
   findByCareSeekerPhone(phone: string) {
     return this.prisma.case.findMany({
-      where: { deletedAt: null, careSeeker: { phone, deletedAt: null } },
+      where: { deletedAt: null, careSeeker: { deletedAt: null, OR: [{ phone }, { phone: `+${phone}` }] } },
       include,
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  careSeekerExists(id: string) {
+    return this.prisma.careSeeker.findFirst({ where: { id, deletedAt: null }, select: { id: true } });
   }
 
   create(data: Prisma.CaseCreateInput) {
