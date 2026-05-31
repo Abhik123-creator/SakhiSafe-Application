@@ -1,28 +1,35 @@
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sakhisafe_backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${APP_PORT:-4000}:${APP_PORT:-4000}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
   postgres:
     image: pgvector/pgvector:pg16
     container_name: sakhisafe_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: sakhi_safe_app
-      POSTGRES_USER: sakhisafe_user
-      POSTGRES_PASSWORD: sakhisafe_password
+      POSTGRES_DB: ${POSTGRES_DB:-sakhi_safe_app}
+      POSTGRES_USER: ${POSTGRES_USER:-sakhisafe_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sakhisafe_password}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: sakhisafe_pgadmin
-    restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@sakhisafe.local
-      PGADMIN_DEFAULT_PASSWORD: admin123
-    ports:
-      - "5050:80"
-    depends_on:
-      - postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
   postgres_data:

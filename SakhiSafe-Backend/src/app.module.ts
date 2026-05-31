@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { NestLensModule } from 'nestlens';
@@ -10,12 +10,13 @@ import { AuditModule } from './audit/audit.module';
 import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { maskSensitiveData } from './common/utils/mask-sensitive-data.util';
-import { RolesGuard } from './common/guards/roles.guard';
 import { AuthModule } from './auth/auth.module';
 import { CasesModule } from './cases/cases.module';
+import { CareSeekersModule } from './care-seekers/care-seekers.module';
 import { HealthModule } from './health/health.module';
+import { ModulesModule } from './modules/modules.module';
 import { OrganizationsModule } from './organizations/organizations.module';
-import { PersonsAtRiskModule } from './persons-at-risk/persons-at-risk.module';
+import { PermissionsModule } from './permissions/permissions.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
@@ -93,13 +94,14 @@ import { UsersModule } from './users/users.module';
     AuthModule,
     UsersModule,
     RolesModule,
+    ModulesModule,
+    PermissionsModule,
     OrganizationsModule,
-    PersonsAtRiskModule,
+    CareSeekersModule,
     CasesModule,
     HealthModule,
   ],
   providers: [
-    { provide: APP_GUARD, useClass: RolesGuard },
     { provide: APP_INTERCEPTOR, useClass: AuditLogInterceptor },
   ],
 })

@@ -13,23 +13,40 @@ The dependencies in `package.json` cover NestJS, Prisma, Passport Local/JWT auth
 
 ## Local Setup
 
+For Docker-first setup:
+
 ```bash
 cp .env.example .env
-docker compose up -d
+docker compose up -d --build
+```
+
+The default `.env.example` uses `postgres` as the database host because the backend runs inside Docker and connects to the `postgres` Compose service.
+
+For non-Docker local development, change `DATABASE_URL` in `.env` from host `postgres` to `localhost`, then run:
+
+```bash
 npm run prisma:migrate -- --name init
 npm run seed
 npm run start:dev
 ```
 
-API: `http://localhost:4000`
+## Docker Backend Setup
 
-Swagger: `http://localhost:4000/api/docs`
+To start PostgreSQL and the NestJS backend together:
 
-Nestlens: `http://localhost:4000/nestlens` in non-production only.
+```bash
+docker compose up --build
+```
 
-Health: `GET http://localhost:4000/health`
+Backend API: `http://localhost:${APP_PORT:-4000}`
 
-pgAdmin: `http://localhost:5050`
+The backend container runs Prisma `db push`, seeds the default data, and then starts NestJS automatically.
+
+Swagger: `http://localhost:${APP_PORT:-4000}/api/docs`
+
+Nestlens: `http://localhost:${APP_PORT:-4000}/nestlens` in non-production only.
+
+Health: `GET http://localhost:${APP_PORT:-4000}/health`
 
 ## Default Local Admin
 

@@ -14,10 +14,10 @@ describe('UsersService', () => {
 
   it('creates a user with a hashed password and default role', async () => {
     repository.create.mockResolvedValue({ id: 'user-id' });
-    await service.create({ email: 'test@example.com', password: 'Password123', name: 'Test User' });
+    await service.create({ email: 'test@example.com', password: 'Password123', fullName: 'Test User' });
     expect(repository.create).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'test@example.com', passwordHash: expect.any(String) }),
-      [RoleName.NGO_WORKER],
+      [RoleName.ORGANIZATION],
     );
   });
 });

@@ -35,28 +35,33 @@ export class UsersService {
       {
         email: dto.email,
         passwordHash,
-        name: dto.name,
+        fullName: dto.fullName,
         phone: dto.phone,
         organization: dto.organizationId ? { connect: { id: dto.organizationId } } : undefined,
       },
-      dto.roles ?? [RoleName.NGO_WORKER],
+      dto.roles ?? [RoleName.ORGANIZATION],
     );
   }
 
   update(id: string, dto: UpdateUserDto) {
     return this.usersRepository.update(id, {
       email: dto.email,
-      name: dto.name,
+      fullName: dto.fullName,
       phone: dto.phone,
       organization: dto.organizationId ? { connect: { id: dto.organizationId } } : undefined,
     });
+  }
+
+  delete(id: string) {
+    return this.usersRepository.softDelete(id);
   }
 
   toSafeUser(user: any) {
     return {
       id: user.id,
       email: user.email,
-      name: user.name,
+      fullName: user.fullName,
+      name: user.fullName,
       roles: user.roles?.map((userRole) => userRole.role.name) ?? [],
       organizationId: user.organizationId,
     };

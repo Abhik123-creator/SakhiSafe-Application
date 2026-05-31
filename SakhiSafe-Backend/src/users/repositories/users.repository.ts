@@ -38,4 +38,8 @@ export class UsersRepository {
   update(id: string, data: Prisma.UserUpdateInput) {
     return this.prisma.user.update({ where: { id }, data, include: userInclude });
   }
+
+  softDelete(id: string) {
+    return this.prisma.user.update({ where: { id }, data: { deletedAt: new Date(), isActive: false }, include: userInclude });
+  }
 }

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 
-const include = { personAtRisk: true, organization: true, assignedTo: true, createdBy: true };
+const include = { careSeeker: true, organization: true, assignedTo: true, createdBy: true };
 
 @Injectable()
 export class CasesRepository {

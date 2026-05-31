@@ -27,7 +27,7 @@ export class CasesService {
       incidentDescription: dto.incidentDescription,
       status: dto.status,
       riskLevel: dto.riskLevel,
-      personAtRisk: { connect: { id: dto.personAtRiskId } },
+      careSeeker: { connect: { id: dto.careSeekerId } },
       organization: dto.organizationId ? { connect: { id: dto.organizationId } } : undefined,
       assignedTo: dto.assignedToId ? { connect: { id: dto.assignedToId } } : undefined,
       createdBy: createdById ? { connect: { id: createdById } } : undefined,
@@ -42,7 +42,7 @@ export class CasesService {
       incidentDescription: dto.incidentDescription,
       status: dto.status,
       riskLevel: dto.riskLevel,
-      personAtRisk: dto.personAtRiskId ? { connect: { id: dto.personAtRiskId } } : undefined,
+      careSeeker: dto.careSeekerId ? { connect: { id: dto.careSeekerId } } : undefined,
       organization: dto.organizationId ? { connect: { id: dto.organizationId } } : undefined,
       assignedTo: dto.assignedToId ? { connect: { id: dto.assignedToId } } : undefined,
     });

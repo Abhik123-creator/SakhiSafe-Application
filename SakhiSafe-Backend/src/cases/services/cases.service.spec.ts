@@ -11,10 +11,10 @@ describe('CasesService', () => {
 
   it('connects related entities when creating a case', async () => {
     repository.create.mockResolvedValue({ id: 'case-id' });
-    await service.create({ title: 'Safety follow-up', personAtRiskId: 'person-id' }, 'creator-id');
+    await service.create({ title: 'Safety follow-up', careSeekerId: 'care-seeker-id' }, 'creator-id');
     expect(repository.create).toHaveBeenCalledWith(
       expect.objectContaining({
-        personAtRisk: { connect: { id: 'person-id' } },
+        careSeeker: { connect: { id: 'care-seeker-id' } },
         createdBy: { connect: { id: 'creator-id' } },
       }),
     );

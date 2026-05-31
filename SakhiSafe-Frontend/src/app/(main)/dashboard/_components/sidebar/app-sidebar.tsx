@@ -16,7 +16,10 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_CONFIG } from "@/config/app-config";
 import { rootUser } from "@/data/users";
+import { can } from "@/lib/permissions";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
+import type { NavGroup } from "@/navigation/sidebar/sidebar-items";
+import { useAuthStore } from "@/stores/auth/auth-store";
 import { usePreferencesStore } from "@/stores/preferences/preferences-provider";
 
 import { NavMain } from "./nav-main";
@@ -61,6 +64,7 @@ const _data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const currentUser = useAuthStore((state) => state.user);
   const { sidebarVariant, sidebarCollapsible, isSynced } = usePreferencesStore(
     useShallow((s) => ({
       sidebarVariant: s.sidebarVariant,
@@ -71,6 +75,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const variant = isSynced ? sidebarVariant : props.variant;
   const collapsible = isSynced ? sidebarCollapsible : props.collapsible;
+  const filteredSidebarItems: NavGroup[] = sidebarItems
+    .filter((group) => group.id === 0)
+    .map((group) => ({
+      ...group,
+      items: group.items
+        .filter((item) => !item.moduleKey || can(currentUser, item.moduleKey, "VIEW"))
+        .map((item) => ({
+          ...item,
+          subItems: item.subItems?.filter((subItem) => !subItem.moduleKey || can(currentUser, subItem.moduleKey, "VIEW")),
+        })),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <Sidebar {...props} variant={variant} collapsible={collapsible}>
@@ -87,13 +103,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={sidebarItems} />
+        <NavMain items={filteredSidebarItems} />
         {/* <NavDocuments items={data.documents} /> */}
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <SidebarSupportCard />
-        <NavUser user={rootUser} />
+        <NavUser user={currentUser ? { ...rootUser, name: currentUser.name ?? currentUser.email, email: currentUser.email } : rootUser} />
       </SidebarFooter>
     </Sidebar>
   );

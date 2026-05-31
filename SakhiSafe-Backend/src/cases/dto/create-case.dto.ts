@@ -5,7 +5,7 @@ import { IsEnum, IsOptional, IsString } from 'class-validator';
 export class CreateCaseDto {
   @ApiProperty()
   @IsString()
-  personAtRiskId: string;
+  careSeekerId: string;
 
   @ApiProperty()
   @IsString()

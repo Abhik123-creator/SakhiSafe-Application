@@ -1,7 +1,7 @@
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
 import helmet from 'helmet';
@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { TransformResponseInterceptor } from './common/interceptors/transform-response.interceptor';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { createSwaggerDocument } from './swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -20,6 +21,7 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
   app.use(cookieParser());
+  app.setGlobalPrefix('api/v1', { exclude: ['health', 'api/docs', 'nestlens'] });
   app.enableCors({
     origin: config.get<string>('app.frontendUrl'),
     credentials: true,
@@ -36,13 +38,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new TransformResponseInterceptor());
 
   if (config.get<string>('app.nodeEnv') !== 'production') {
-    const documentConfig = new DocumentBuilder()
-      .setTitle('SakhiSafe API')
-      .setDescription('SakhiSafe backend API')
-      .setVersion('0.1.0')
-      .addBearerAuth()
-      .build();
-    const document = SwaggerModule.createDocument(app, documentConfig);
+    const document = createSwaggerDocument(app);
     SwaggerModule.setup('api/docs', app, document);
   }
 

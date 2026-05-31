@@ -6,6 +6,7 @@ const SENSITIVE_KEYS = [
   'authorization',
   'phone',
   'name',
+  'fullName',
   'address',
   'notes',
   'caseNotes',

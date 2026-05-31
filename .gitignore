@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /SakhiSafe-Backend/node_modules
+/SakhiSafe-Frontend/node_modules
 /.pnp
 .pnp.js
 .yarn/install-state.gz
@@ -17,6 +18,7 @@
 # production
 /build
 /SakhiSafe-Backend/dist
+/SakhiSafe-Frontend/.next
 
 # misc
 .DS_Store

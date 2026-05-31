@@ -6,7 +6,7 @@ describe('RolesGuard', () => {
   const reflector = { getAllAndOverride: jest.fn() } as unknown as Reflector;
   const guard = new RolesGuard(reflector);
 
-  function context(roles: string[]) {
+  function context(roles: any[]) {
     return {
       getHandler: jest.fn(),
       getClass: jest.fn(),
@@ -24,8 +24,13 @@ describe('RolesGuard', () => {
     expect(guard.canActivate(context([RoleName.SUPER_ADMIN]))).toBe(true);
   });
 
+  it('allows matching role object shape', () => {
+    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([RoleName.SUPER_ADMIN]);
+    expect(guard.canActivate(context([{ name: RoleName.SUPER_ADMIN }]))).toBe(true);
+  });
+
   it('denies missing role', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue([RoleName.SUPER_ADMIN]);
-    expect(guard.canActivate(context([RoleName.NGO_WORKER]))).toBe(false);
+    expect(guard.canActivate(context([RoleName.ORGANIZATION]))).toBe(false);
   });
 });

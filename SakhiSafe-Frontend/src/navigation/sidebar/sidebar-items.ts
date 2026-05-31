@@ -1,7 +1,9 @@
 import {
   Banknote,
+  Building2,
   Calendar,
   ChartBar,
+  ClipboardList,
   Fingerprint,
   Forklift,
   Gauge,
@@ -16,8 +18,11 @@ import {
   ReceiptText,
   ShoppingBag,
   SquareArrowUpRight,
+  UserRoundSearch,
   Users,
 } from "lucide-react";
+
+import type { ModuleKey } from "@/lib/api/types";
 
 export interface NavSubItem {
   title: string;
@@ -26,6 +31,8 @@ export interface NavSubItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: string[];
+  moduleKey?: ModuleKey;
 }
 
 export interface NavMainItem {
@@ -36,6 +43,8 @@ export interface NavMainItem {
   comingSoon?: boolean;
   newTab?: boolean;
   isNew?: boolean;
+  roles?: string[];
+  moduleKey?: ModuleKey;
 }
 
 export interface NavGroup {
@@ -45,6 +54,66 @@ export interface NavGroup {
 }
 
 export const sidebarItems: NavGroup[] = [
+  {
+    id: 0,
+    label: "SakhiSafe",
+    items: [
+      {
+        title: "Overview",
+        url: "/dashboard/default",
+        icon: Gauge,
+        moduleKey: "DASHBOARD",
+      },
+      {
+        title: "Cases",
+        url: "/dashboard/cases",
+        icon: ClipboardList,
+        moduleKey: "CASES",
+      },
+      {
+        title: "Care Seekers",
+        url: "/dashboard/care-seekers",
+        icon: UserRoundSearch,
+        moduleKey: "CARE_SEEKERS",
+      },
+      {
+        title: "Organizations",
+        url: "/dashboard/organizations",
+        icon: Building2,
+        moduleKey: "ORGANIZATIONS",
+      },
+      {
+        title: "Users",
+        url: "/dashboard/users",
+        icon: Users,
+        moduleKey: "USERS",
+      },
+      {
+        title: "Modules",
+        url: "/dashboard/modules",
+        icon: Kanban,
+        moduleKey: "MODULES",
+      },
+      {
+        title: "Roles",
+        url: "/dashboard/roles",
+        icon: Lock,
+        moduleKey: "ROLES",
+      },
+      {
+        title: "Audit Logs",
+        url: "/dashboard/audit",
+        icon: Lock,
+        moduleKey: "AUDIT_LOGS",
+      },
+      {
+        title: "System Health",
+        url: "/dashboard/system/health",
+        icon: ChartBar,
+        moduleKey: "SYSTEM_SETTINGS",
+      },
+    ],
+  },
   {
     id: 1,
     label: "Dashboards",
