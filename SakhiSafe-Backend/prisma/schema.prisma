@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum RoleName {
+  SUPER_ADMIN
+  SYSTEM_ADMIN
+  NGO_ADMIN
+  NGO_WORKER
+  ERT_ADMIN
+  ERT_RESPONDER
+  GOV_ADMIN
+  CASE_MANAGER
+  COUNSELLOR
+  LEGAL_ADVISOR
+  AI_SERVICE
+  MESSAGING_SERVICE
+}
+
+enum OrganizationType {
+  NGO
+  GOVERNMENT
+  ERT
+  HEALTHCARE
+  LEGAL
+  SYSTEM
+}
+
+enum CaseStatus {
+  OPEN
+  IN_PROGRESS
+  ESCALATED
+  RESOLVED
+  CLOSED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AuditAction {
+  USER_LOGIN
+  CASE_VIEWED
+  CASE_CREATED
+  CASE_UPDATED
+  PERSON_AT_RISK_VIEWED
+  PERSON_AT_RISK_UPDATED
+  ORGANIZATION_CREATED
+  ORGANIZATION_UPDATED
+  ROLE_CHANGED
+}
+
+model User {
+  id             String     @id @default(uuid()) @db.Uuid
+  email          String     @unique
+  passwordHash   String
+  name           String
+  phone          String?
+  organizationId String?    @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  roles          UserRole[]
+  casesCreated   Case[]     @relation("CaseCreatedBy")
+  casesAssigned  Case[]     @relation("CaseAssignedTo")
+  auditLogs      AuditLog[]  @relation("ActorAuditLogs")
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
+}
+
+model Role {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        RoleName   @unique
+  description String?
+  users       UserRole[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model UserRole {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  roleId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, roleId])
+}
+
+model Organization {
+  id            String           @id @default(uuid()) @db.Uuid
+  name          String
+  type          OrganizationType
+  phone         String?
+  address       String?
+  users         User[]
+  personsAtRisk PersonAtRisk[]
+  cases         Case[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  deletedAt     DateTime?
+}
+
+model PersonAtRisk {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String?       @db.Uuid
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  name           String
+  phone          String?
+  address        String?
+  riskLevel      RiskLevel     @default(MEDIUM)
+  safetyNotes    String?
+  cases          Case[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+}
+
+model Case {
+  id             String        @id @default(uuid()) @db.Uuid
+  organizationId String?       @db.Uuid
+  personAtRiskId String        @db.Uuid
+  createdById    String?       @db.Uuid
+  assignedToId   String?       @db.Uuid
+  title          String
+  summary        String?
+  notes          String?
+  incidentDescription String?
+  status         CaseStatus    @default(OPEN)
+  riskLevel      RiskLevel     @default(MEDIUM)
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+  personAtRisk   PersonAtRisk  @relation(fields: [personAtRiskId], references: [id])
+  createdBy      User?         @relation("CaseCreatedBy", fields: [createdById], references: [id])
+  assignedTo     User?         @relation("CaseAssignedTo", fields: [assignedToId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+}
+
+model AuditLog {
+  id          String      @id @default(uuid()) @db.Uuid
+  actorUserId String?     @db.Uuid
+  action      AuditAction
+  entityType  String
+  entityId    String?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json?
+  actor       User?       @relation("ActorAuditLogs", fields: [actorUserId], references: [id])
+  createdAt   DateTime    @default(now())
+}
