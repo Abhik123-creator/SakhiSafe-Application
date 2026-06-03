@@ -4,6 +4,8 @@ import { AuthModule } from '../auth/auth.module';
 import { CareSeekersModule } from '../care-seekers/care-seekers.module';
 import { CasesModule } from '../cases/cases.module';
 import { HealthModule } from '../health/health.module';
+import { EvidenceModule } from '../evidence/evidence.module';
+import { IncidentsModule } from '../incidents/incidents.module';
 import { ModulesModule } from '../modules/modules.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 import { PermissionsModule } from '../permissions/permissions.module';
@@ -20,6 +22,8 @@ import { UsersModule } from '../users/users.module';
     OrganizationsModule,
     CareSeekersModule,
     CasesModule,
+    IncidentsModule,
+    EvidenceModule,
     AuditModule,
     HealthModule,
   ],

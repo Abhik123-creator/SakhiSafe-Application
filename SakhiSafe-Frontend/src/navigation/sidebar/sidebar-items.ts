@@ -4,6 +4,7 @@ import {
   Calendar,
   ChartBar,
   ClipboardList,
+  FileWarning,
   Fingerprint,
   Forklift,
   Gauge,
@@ -69,6 +70,12 @@ export const sidebarItems: NavGroup[] = [
         url: "/dashboard/cases",
         icon: ClipboardList,
         moduleKey: "CASES",
+      },
+      {
+        title: "Incidents",
+        url: "/dashboard/incidents",
+        icon: FileWarning,
+        moduleKey: "INCIDENTS",
       },
       {
         title: "Care Seekers",

@@ -51,6 +51,26 @@ export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
 export type CaseStatus = "OPEN" | "IN_PROGRESS" | "ESCALATED" | "RESOLVED" | "CLOSED";
 
+export type IncidentSource = "WHATSAPP" | "WEB" | "ADMIN";
+
+export type IncidentCategory =
+  | "DOMESTIC_VIOLENCE"
+  | "PHYSICAL_ABUSE"
+  | "EMOTIONAL_ABUSE"
+  | "SEXUAL_ABUSE"
+  | "FINANCIAL_ABUSE"
+  | "STALKING"
+  | "HARASSMENT"
+  | "THREAT"
+  | "OTHER"
+  | "UNKNOWN";
+
+export type IncidentSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | "UNKNOWN";
+
+export type IncidentUrgency = "LOW" | "SOON" | "URGENT" | "IMMEDIATE" | "UNKNOWN";
+
+export type IncidentStatus = "DRAFT" | "OPEN" | "UNDER_REVIEW" | "CLOSED";
+
 export interface CareSeeker {
   id: string;
   fullName: string;
@@ -75,6 +95,107 @@ export interface CaseRecord {
   assignedTo?: User | null;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export interface ConversationSession {
+  id: string;
+  careSeekerId: string;
+  channel: "WHATSAPP" | "WEB";
+  status: "ACTIVE" | "CLOSED";
+  startedAt: string;
+  lastMessageAt: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  sessionId: string;
+  direction: "INBOUND" | "OUTBOUND";
+  messageType: "TEXT" | "IMAGE";
+  messageText?: string | null;
+  mediaId?: string | null;
+  evidenceId?: string | null;
+  rawPayload?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface EvidenceListItem {
+  id: string;
+  evidenceType: "IMAGE";
+  mimeType: string;
+  fileSize: number;
+  caption?: string | null;
+  createdAt: string;
+  uploadedBy: "CARE_SEEKER" | "ADMIN" | "AI_SERVICE";
+}
+
+export interface IncidentListItem {
+  id: string;
+  title: string;
+  careSeekerPhoneNumber?: string | null;
+  category: IncidentCategory;
+  severity: IncidentSeverity;
+  urgency: IncidentUrgency;
+  status: IncidentStatus;
+  needsHumanReview: boolean;
+  aiGenerated: boolean;
+  updatedAt: string;
+}
+
+export interface IncidentFilters {
+  status?: IncidentStatus;
+  severity?: IncidentSeverity;
+  urgency?: IncidentUrgency;
+  needsHumanReview?: boolean;
+  source?: IncidentSource;
+}
+
+export interface IncidentDetail {
+  id: string;
+  careSeekerId: string;
+  sessionId?: string | null;
+  source: IncidentSource;
+  title: string;
+  summary?: string | null;
+  description?: string | null;
+  category: IncidentCategory;
+  severity: IncidentSeverity;
+  urgency: IncidentUrgency;
+  incidentDateText?: string | null;
+  locationText?: string | null;
+  perpetratorRelation?: string | null;
+  riskSignals?: string[] | null;
+  missingFields?: string[] | null;
+  needsHumanReview: boolean;
+  aiGenerated: boolean;
+  aiConfidence?: string | number | null;
+  caseNote?: string | null;
+  status: IncidentStatus;
+  manuallyEdited?: boolean;
+  createdAt: string;
+  updatedAt: string;
+  careSeeker?: {
+    id: string;
+    displayName?: string | null;
+    phoneNumber?: string | null;
+    whatsappPhoneNumber?: string | null;
+    source?: string;
+    status?: string;
+  } | null;
+  conversationSession?: ConversationSession | null;
+  conversationMessagesTimeline?: ConversationMessage[];
+  evidence?: EvidenceListItem[];
+}
+
+export interface UpdateIncidentInput {
+  title?: string;
+  summary?: string;
+  description?: string;
+  category?: IncidentCategory;
+  severity?: IncidentSeverity;
+  urgency?: IncidentUrgency;
+  status?: IncidentStatus;
+  caseNote?: string;
+  needsHumanReview?: boolean;
 }
 
 export interface AuditLog {

@@ -4,8 +4,11 @@ import { ApiModule } from '../../api/api.module';
 import { InternalModule } from '../../internal/internal.module';
 import { WebhooksModule } from '../../webhooks/webhooks.module';
 
-function filterDocumentPaths(document: OpenAPIObject, prefix: string) {
-  document.paths = Object.fromEntries(Object.entries(document.paths).filter(([path]) => path.startsWith(`${prefix}/`)));
+function filterDocumentPaths(document: OpenAPIObject, prefixes: string | string[]) {
+  const allowedPrefixes = Array.isArray(prefixes) ? prefixes : [prefixes];
+  document.paths = Object.fromEntries(
+    Object.entries(document.paths).filter(([path]) => allowedPrefixes.some((prefix) => path.startsWith(`${prefix}/`))),
+  );
   return document;
 }
 
@@ -17,7 +20,10 @@ export function createApiSwaggerDocument(app: INestApplication) {
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'user-jwt')
     .build();
 
-  return filterDocumentPaths(SwaggerModule.createDocument(app, config, { include: [ApiModule], deepScanRoutes: true }), '/api/v1');
+  return filterDocumentPaths(SwaggerModule.createDocument(app, config, { include: [ApiModule], deepScanRoutes: true }), [
+    '/api/v1',
+    '/admin/v1',
+  ]);
 }
 
 export function createInternalSwaggerDocument(app: INestApplication) {

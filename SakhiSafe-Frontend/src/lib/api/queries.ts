@@ -11,6 +11,7 @@ import type {
   CareSeeker,
   CaseRecord,
   HealthStatus,
+  EvidenceListItem,
   LoginResponse,
   Organization,
   Role,
@@ -19,9 +20,18 @@ import type {
   CreateCaseInput,
   CreateCareSeekerInput,
   CreateOrganizationInput,
+  IncidentDetail,
+  IncidentFilters,
+  IncidentListItem,
+  IncidentSeverity,
+  IncidentSource,
+  IncidentStatus,
+  IncidentUrgency,
+  UpdateIncidentInput,
 } from "./types";
 
 const API_PREFIX = "/api/v1";
+const ADMIN_PREFIX = "/admin/v1";
 
 export const queryKeys = {
   me: ["auth", "me"] as const,
@@ -29,6 +39,9 @@ export const queryKeys = {
   cases: ["cases"] as const,
   casesByPhone: (phone: string) => ["cases", "by-phone", phone] as const,
   caseDetail: (id: string) => ["cases", id] as const,
+  incidents: (filters?: IncidentFilters) => ["incidents", filters ?? {}] as const,
+  incidentDetail: (id: string) => ["incidents", id] as const,
+  incidentEvidence: (id: string) => ["incidents", id, "evidence"] as const,
   organizations: ["organizations"] as const,
   users: ["users"] as const,
   careSeekers: ["care-seekers"] as const,
@@ -110,6 +123,52 @@ export function useCaseQuery(id: string) {
     queryKey: queryKeys.caseDetail(id),
     queryFn: () => apiGet<CaseRecord>(`${API_PREFIX}/cases/${id}`),
     enabled: Boolean(id),
+  });
+}
+
+function toQueryString(filters?: IncidentFilters) {
+  const params = new URLSearchParams();
+  Object.entries(filters ?? {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      params.set(key, String(value));
+    }
+  });
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
+export function useIncidentsQuery(filters?: IncidentFilters) {
+  return useQuery({
+    queryKey: queryKeys.incidents(filters),
+    queryFn: () => apiGet<IncidentListItem[]>(`${ADMIN_PREFIX}/incidents${toQueryString(filters)}`),
+  });
+}
+
+export function useIncidentQuery(id: string) {
+  return useQuery({
+    queryKey: queryKeys.incidentDetail(id),
+    queryFn: () => apiGet<IncidentDetail>(`${ADMIN_PREFIX}/incidents/${id}`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useIncidentEvidenceQuery(id: string) {
+  return useQuery({
+    queryKey: queryKeys.incidentEvidence(id),
+    queryFn: () => apiGet<EvidenceListItem[]>(`${ADMIN_PREFIX}/incidents/${id}/evidence`),
+    enabled: Boolean(id),
+  });
+}
+
+export function useUpdateIncidentMutation(id: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: UpdateIncidentInput) => apiPatch<IncidentDetail, UpdateIncidentInput>(`${ADMIN_PREFIX}/incidents/${id}`, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.incidentDetail(id) });
+      queryClient.invalidateQueries({ queryKey: ["incidents"] });
+    },
   });
 }
 

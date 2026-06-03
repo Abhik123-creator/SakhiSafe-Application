@@ -1,11 +1,14 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { isAnonymousName, normalizePhone } from '../../common/utils/phone.util';
 import { CreateCareSeekerDto } from '../dto/create-care-seeker.dto';
+import { GetOrCreateCareSeekerDto } from '../dto/get-or-create-care-seeker.dto';
 import { UpdateCareSeekerDto } from '../dto/update-care-seeker.dto';
 import { CareSeekersRepository } from '../repositories/care-seekers.repository';
 
 @Injectable()
 export class CareSeekersService {
+  private readonly logger = new Logger(CareSeekersService.name);
+
   constructor(private readonly careSeekersRepository: CareSeekersRepository) {}
 
   findAll() {
@@ -45,6 +48,35 @@ export class CareSeekersService {
     return this.careSeekersRepository.create({
       ...dto,
       phone: normalizedPhone,
+    });
+  }
+
+  async getOrCreate(dto: GetOrCreateCareSeekerDto) {
+    const phoneNumber = normalizePhone(dto.phoneNumber);
+    const whatsappPhoneNumber = normalizePhone(dto.whatsappPhoneNumber);
+    if (!phoneNumber && !whatsappPhoneNumber) {
+      throw new BadRequestException('phoneNumber or whatsappPhoneNumber is required');
+    }
+
+    const existing = await this.careSeekersRepository.findByPhoneNumbers([
+      ...(phoneNumber ? [phoneNumber] : []),
+      ...(whatsappPhoneNumber ? [whatsappPhoneNumber] : []),
+    ]);
+    if (existing) {
+      this.logger.log(`Reusing care seeker ${existing.id} for internal intake`);
+      return existing;
+    }
+
+    const displayName = dto.displayName?.trim() || 'WhatsApp Care Seeker';
+    this.logger.log('Creating care seeker from internal intake');
+    return this.careSeekersRepository.create({
+      fullName: displayName,
+      displayName,
+      phone: phoneNumber ?? whatsappPhoneNumber,
+      phoneNumber,
+      whatsappPhoneNumber,
+      source: dto.source ?? 'WHATSAPP',
+      status: 'ACTIVE',
     });
   }
 

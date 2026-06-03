@@ -1,0 +1,1 @@
+-- Empty baseline migration retained for Prisma migration history.

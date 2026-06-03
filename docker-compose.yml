@@ -29,6 +29,8 @@ services:
       DATABASE_URL: postgresql://sakhisafe_user:sakhisafe_password@postgres:5432/sakhi_safe_app?schema=public
     ports:
       - "4000:4000"
+    volumes:
+      - evidence_uploads:/app/private/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,3 +52,4 @@ services:
 
 volumes:
   postgres_data:
+  evidence_uploads:

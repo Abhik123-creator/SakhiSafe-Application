@@ -64,6 +64,101 @@ enum RiskLevel {
   CRITICAL
 }
 
+enum CareSeekerSource {
+  WHATSAPP
+  WEB
+  ADMIN
+}
+
+enum CareSeekerStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum ConversationChannel {
+  WHATSAPP
+  WEB
+}
+
+enum ConversationSessionStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum ConversationDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum ConversationMessageType {
+  TEXT
+  IMAGE
+}
+
+enum IncidentSource {
+  WHATSAPP
+  WEB
+  ADMIN
+}
+
+enum IncidentCategory {
+  DOMESTIC_VIOLENCE
+  PHYSICAL_ABUSE
+  EMOTIONAL_ABUSE
+  SEXUAL_ABUSE
+  FINANCIAL_ABUSE
+  STALKING
+  HARASSMENT
+  THREAT
+  OTHER
+  UNKNOWN
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+  UNKNOWN
+}
+
+enum IncidentUrgency {
+  LOW
+  SOON
+  URGENT
+  IMMEDIATE
+  UNKNOWN
+}
+
+enum IncidentStatus {
+  DRAFT
+  OPEN
+  UNDER_REVIEW
+  CLOSED
+}
+
+enum EvidenceSource {
+  WHATSAPP
+  WEB
+  ADMIN
+}
+
+enum EvidenceType {
+  IMAGE
+}
+
+enum EvidenceUploadedBy {
+  CARE_SEEKER
+  ADMIN
+  AI_SERVICE
+}
+
+enum EvidenceStatus {
+  ACTIVE
+  DELETED
+}
+
 enum AuditAction {
   USER_LOGIN
   CASE_VIEWED
@@ -164,10 +259,18 @@ model CareSeeker {
   organization   Organization? @relation(fields: [organizationId], references: [id])
   fullName       String     @map("name")
   phone          String?
+  displayName    String?
+  phoneNumber    String?       @unique
+  whatsappPhoneNumber String?  @unique
+  source         CareSeekerSource @default(ADMIN)
+  status         CareSeekerStatus @default(ACTIVE)
   address        String?
   riskLevel      RiskLevel     @default(MEDIUM)
   safetyNotes    String?
   cases          Case[]
+  conversationSessions ConversationSession[]
+  incidents      Incident[]
+  evidence       Evidence[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   deletedAt      DateTime?
@@ -205,4 +308,97 @@ model AuditLog {
   metadata    Json?
   actor       User?       @relation("ActorAuditLogs", fields: [actorUserId], references: [id])
   createdAt   DateTime    @default(now())
+}
+
+model ConversationSession {
+  id            String                    @id @default(uuid()) @db.Uuid
+  careSeekerId  String                    @db.Uuid
+  channel       ConversationChannel
+  status        ConversationSessionStatus @default(ACTIVE)
+  startedAt     DateTime                  @default(now())
+  lastMessageAt DateTime                  @default(now())
+  careSeeker    CareSeeker                @relation(fields: [careSeekerId], references: [id])
+  messages      ConversationMessage[]
+  incidents     Incident[]
+  evidence      Evidence[]
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  @@index([careSeekerId, channel, status])
+}
+
+model ConversationMessage {
+  id          String                  @id @default(uuid()) @db.Uuid
+  sessionId   String                  @db.Uuid
+  direction   ConversationDirection
+  messageType ConversationMessageType
+  messageText String?                 @db.Text
+  mediaId     String?
+  evidenceId  String?                 @db.Uuid
+  rawPayload  Json?
+  session     ConversationSession     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  evidence    Evidence?               @relation(fields: [evidenceId], references: [id])
+  createdAt   DateTime                @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model Incident {
+  id                   String            @id @default(uuid()) @db.Uuid
+  careSeekerId         String            @db.Uuid
+  sessionId            String?           @db.Uuid
+  source               IncidentSource
+  title                String
+  summary              String?           @db.Text
+  description          String?           @db.Text
+  category             IncidentCategory  @default(UNKNOWN)
+  severity             IncidentSeverity  @default(UNKNOWN)
+  urgency              IncidentUrgency   @default(UNKNOWN)
+  incidentDateText     String?
+  locationText         String?
+  perpetratorRelation  String?
+  riskSignals          Json?
+  missingFields        Json?
+  needsHumanReview     Boolean           @default(false)
+  aiGenerated          Boolean           @default(false)
+  aiConfidence         Decimal?          @db.Decimal(4, 3)
+  caseNote             String?           @db.Text
+  status               IncidentStatus    @default(DRAFT)
+  manuallyEdited       Boolean           @default(false)
+  careSeeker           CareSeeker        @relation(fields: [careSeekerId], references: [id])
+  session              ConversationSession? @relation(fields: [sessionId], references: [id])
+  evidence             Evidence[]
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@index([sessionId, status])
+  @@index([status, severity, urgency, source, needsHumanReview])
+}
+
+model Evidence {
+  id               String              @id @default(uuid()) @db.Uuid
+  careSeekerId     String              @db.Uuid
+  sessionId        String              @db.Uuid
+  incidentId       String              @db.Uuid
+  source           EvidenceSource
+  evidenceType     EvidenceType
+  originalFileName String
+  storedFileName   String
+  storagePath      String
+  mimeType         String
+  fileSize         Int
+  sha256Hash       String?
+  caption          String?             @db.Text
+  description      String?             @db.Text
+  uploadedBy       EvidenceUploadedBy
+  status           EvidenceStatus      @default(ACTIVE)
+  careSeeker       CareSeeker          @relation(fields: [careSeekerId], references: [id])
+  session          ConversationSession @relation(fields: [sessionId], references: [id])
+  incident         Incident            @relation(fields: [incidentId], references: [id])
+  messages         ConversationMessage[]
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([incidentId, status])
+  @@index([careSeekerId, sessionId, incidentId])
 }

@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/co
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { SkipResponseTransform } from '../../common/decorators/skip-response-transform.decorator';
 import { CreateCareSeekerDto } from '../../care-seekers/dto/create-care-seeker.dto';
+import { GetOrCreateCareSeekerDto } from '../../care-seekers/dto/get-or-create-care-seeker.dto';
 import { UpdateCareSeekerDto } from '../../care-seekers/dto/update-care-seeker.dto';
 import { CareSeekersService } from '../../care-seekers/services/care-seekers.service';
 import { ServiceJwtGuard } from '../internal-auth/service-jwt.guard';
@@ -37,6 +38,12 @@ export class InternalCareSeekersController {
   @ApiOperation({ summary: 'Create care seeker from service clients' })
   create(@Body() dto: CreateCareSeekerDto) {
     return this.careSeekersService.create(dto);
+  }
+
+  @Post('get-or-create')
+  @ApiOperation({ summary: 'Get or create care seeker from service clients' })
+  getOrCreate(@Body() dto: GetOrCreateCareSeekerDto) {
+    return this.careSeekersService.getOrCreate(dto);
   }
 
   @Patch(':id')
