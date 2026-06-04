@@ -41,14 +41,16 @@ export function LoginForm() {
   };
 
   return (
-    <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+    <form noValidate onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-5">
       <FieldGroup className="gap-4">
         <Controller
           control={form.control}
           name="email"
           render={({ field, fieldState }) => (
             <Field className="gap-1.5" data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="login-email">Email Address</FieldLabel>
+              <FieldLabel htmlFor="login-email" className="font-medium text-[#2b1853]">
+                Email Address
+              </FieldLabel>
               <Input
                 {...field}
                 id="login-email"
@@ -56,6 +58,7 @@ export function LoginForm() {
                 placeholder="you@example.com"
                 autoComplete="email"
                 aria-invalid={fieldState.invalid}
+                className="h-12 border-[#ddcbb6] bg-[#fffaf5] text-[#1d163d] shadow-sm placeholder:text-[#a69aaa] focus-visible:border-[#007f8e] focus-visible:ring-[#007f8e]/20"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -66,7 +69,9 @@ export function LoginForm() {
           name="password"
           render={({ field, fieldState }) => (
             <Field className="gap-1.5" data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="login-password">Password</FieldLabel>
+              <FieldLabel htmlFor="login-password" className="font-medium text-[#2b1853]">
+                Password
+              </FieldLabel>
               <Input
                 {...field}
                 id="login-password"
@@ -74,6 +79,7 @@ export function LoginForm() {
                 placeholder="••••••••"
                 autoComplete="current-password"
                 aria-invalid={fieldState.invalid}
+                className="h-12 border-[#ddcbb6] bg-[#fffaf5] text-[#1d163d] shadow-sm placeholder:text-[#a69aaa] focus-visible:border-[#007f8e] focus-visible:ring-[#007f8e]/20"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
@@ -83,16 +89,17 @@ export function LoginForm() {
           control={form.control}
           name="remember"
           render={({ field, fieldState }) => (
-            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+            <Field orientation="horizontal" data-invalid={fieldState.invalid} className="items-center">
               <Checkbox
                 id="login-remember"
                 name={field.name}
                 checked={field.value}
                 onCheckedChange={(checked) => field.onChange(Boolean(checked))}
                 aria-invalid={fieldState.invalid}
+                className="border-[#b29153] data-[state=checked]:border-[#2b1853] data-[state=checked]:bg-[#2b1853]"
               />
               <FieldContent>
-                <FieldLabel htmlFor="login-remember" className="font-normal">
+                <FieldLabel htmlFor="login-remember" className="font-normal text-[#635b73]">
                   Remember me for 30 days
                 </FieldLabel>
                 {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
@@ -101,8 +108,12 @@ export function LoginForm() {
           )}
         />
       </FieldGroup>
-      <Button className="w-full" type="submit" disabled={loginMutation.isPending}>
-        {loginMutation.isPending ? "Logging in..." : "Login"}
+      <Button
+        className="h-12 w-full bg-[#2b1853] font-semibold text-white shadow-lg shadow-[#2b1853]/20 hover:bg-[#1f123d]"
+        type="submit"
+        disabled={loginMutation.isPending}
+      >
+        {loginMutation.isPending ? "Signing in..." : "Sign in securely"}
       </Button>
     </form>
   );

@@ -124,6 +124,10 @@ export interface EvidenceListItem {
   mimeType: string;
   fileSize: number;
   caption?: string | null;
+  description?: string | null;
+  aiSummary?: string | null;
+  aiConfidence?: number | null;
+  aiAnalysisStatus?: string | null;
   createdAt: string;
   uploadedBy: "CARE_SEEKER" | "ADMIN" | "AI_SERVICE";
 }

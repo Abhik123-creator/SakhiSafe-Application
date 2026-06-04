@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { InternalCareSeekersModule } from './care-seekers/internal-care-seekers.module';
 import { InternalCasesModule } from './cases/internal-cases.module';
+import { InternalCaseNotesModule } from './case-notes/internal-case-notes.module';
 import { InternalConversationMessagesModule } from './conversation-messages/internal-conversation-messages.module';
 import { InternalConversationSessionsModule } from './conversation-sessions/internal-conversation-sessions.module';
 import { InternalEvidenceModule } from './evidence/internal-evidence.module';
@@ -13,6 +14,7 @@ import { InternalHealthController } from './internal-auth/internal-health.contro
     InternalAuthModule,
     InternalCareSeekersModule,
     InternalCasesModule,
+    InternalCaseNotesModule,
     InternalConversationSessionsModule,
     InternalConversationMessagesModule,
     InternalIncidentsModule,

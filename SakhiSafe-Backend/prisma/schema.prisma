@@ -142,10 +142,23 @@ enum EvidenceSource {
   WHATSAPP
   WEB
   ADMIN
+  ADMIN_UPLOAD
+  AI_SERVICE
 }
 
 enum EvidenceType {
   IMAGE
+  AUDIO
+  VIDEO
+  DOCUMENT
+  TEXT
+}
+
+enum EvidenceAiAnalysisStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
 }
 
 enum EvidenceUploadedBy {
@@ -271,6 +284,7 @@ model CareSeeker {
   conversationSessions ConversationSession[]
   incidents      Incident[]
   evidence       Evidence[]
+  caseNotes      CaseNote[]
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   deletedAt      DateTime?
@@ -288,10 +302,13 @@ model Case {
   incidentDescription String?
   status              CaseStatus    @default(OPEN)
   riskLevel           RiskLevel     @default(MEDIUM)
+  confidenceScore     Float?
   organization        Organization? @relation(fields: [organizationId], references: [id])
   careSeeker          CareSeeker    @relation(fields: [careSeekerId], references: [id])
   createdBy           User?         @relation("CaseCreatedBy", fields: [createdById], references: [id])
   assignedTo          User?         @relation("CaseAssignedTo", fields: [assignedToId], references: [id])
+  evidence            Evidence[]
+  caseNotes           CaseNote[]
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
   deletedAt           DateTime?
@@ -362,12 +379,14 @@ model Incident {
   needsHumanReview     Boolean           @default(false)
   aiGenerated          Boolean           @default(false)
   aiConfidence         Decimal?          @db.Decimal(4, 3)
+  confidenceScore      Float?
   caseNote             String?           @db.Text
   status               IncidentStatus    @default(DRAFT)
   manuallyEdited       Boolean           @default(false)
   careSeeker           CareSeeker        @relation(fields: [careSeekerId], references: [id])
   session              ConversationSession? @relation(fields: [sessionId], references: [id])
   evidence             Evidence[]
+  caseNotes            CaseNote[]
   createdAt            DateTime          @default(now())
   updatedAt            DateTime          @updatedAt
 
@@ -378,27 +397,55 @@ model Incident {
 model Evidence {
   id               String              @id @default(uuid()) @db.Uuid
   careSeekerId     String              @db.Uuid
-  sessionId        String              @db.Uuid
-  incidentId       String              @db.Uuid
+  sessionId        String?             @db.Uuid
+  incidentId       String?             @db.Uuid
+  caseId           String?             @db.Uuid
   source           EvidenceSource
   evidenceType     EvidenceType
-  originalFileName String
+  originalFileName String?
   storedFileName   String
   storagePath      String
+  publicUrl        String?
   mimeType         String
   fileSize         Int
   sha256Hash       String?
+  whatsappMessageId String?
+  whatsappMediaId  String?
+  aiAnalysisStatus EvidenceAiAnalysisStatus @default(PENDING)
+  aiAnalysisJson   Json?
+  aiConfidence     Float?
+  aiSummary        String?             @db.Text
   caption          String?             @db.Text
   description      String?             @db.Text
   uploadedBy       EvidenceUploadedBy
   status           EvidenceStatus      @default(ACTIVE)
   careSeeker       CareSeeker          @relation(fields: [careSeekerId], references: [id])
-  session          ConversationSession @relation(fields: [sessionId], references: [id])
-  incident         Incident            @relation(fields: [incidentId], references: [id])
+  session          ConversationSession? @relation(fields: [sessionId], references: [id])
+  incident         Incident?           @relation(fields: [incidentId], references: [id])
+  case             Case?               @relation(fields: [caseId], references: [id])
   messages         ConversationMessage[]
   createdAt        DateTime            @default(now())
   updatedAt        DateTime            @updatedAt
 
   @@index([incidentId, status])
+  @@index([caseId, status])
   @@index([careSeekerId, sessionId, incidentId])
+  @@index([whatsappMessageId])
+}
+
+model CaseNote {
+  id            String    @id @default(uuid()) @db.Uuid
+  careSeekerId  String    @db.Uuid
+  incidentId    String?   @db.Uuid
+  caseId        String?   @db.Uuid
+  noteText      String    @db.Text
+  careSeeker    CareSeeker @relation(fields: [careSeekerId], references: [id])
+  incident      Incident? @relation(fields: [incidentId], references: [id])
+  case          Case?     @relation(fields: [caseId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([incidentId])
+  @@index([caseId])
+  @@index([careSeekerId])
 }

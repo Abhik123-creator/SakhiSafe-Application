@@ -73,9 +73,61 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+function FormattedMediaObservation({ text }: { text?: string | null }) {
+  const sections = (text || "")
+    .split(/\n+/)
+    .map((section) => section.trim())
+    .filter(Boolean);
+
+  if (!sections.length) {
+    return <div className="text-sm font-medium">No image summary provided.</div>;
+  }
+
+  const [rawOverview, ...details] = sections;
+  const overviewSeparatorIndex = rawOverview.indexOf(":");
+  const overview =
+    overviewSeparatorIndex !== -1 && overviewSeparatorIndex <= 42
+      ? rawOverview.slice(overviewSeparatorIndex + 1).trim()
+      : rawOverview;
+  const parsedDetails = details.map((detail) => {
+    const separatorIndex = detail.indexOf(":");
+    if (separatorIndex === -1 || separatorIndex > 42) {
+      return { label: null, value: detail };
+    }
+    return {
+      label: detail.slice(0, separatorIndex).trim(),
+      value: detail.slice(separatorIndex + 1).trim(),
+    };
+  });
+
+  return (
+    <div className="space-y-3">
+      <div className="rounded-md border bg-muted/35 p-3">
+        <div className="mb-1 text-muted-foreground text-xs font-medium uppercase tracking-normal">Observation</div>
+        <p className="text-sm leading-6">{overview}</p>
+      </div>
+      {parsedDetails.length ? (
+        <div className="grid gap-2 sm:grid-cols-2">
+          {parsedDetails.map((detail, index) => (
+            <div key={`${detail.label || "detail"}-${index}`} className="rounded-md border p-3">
+              {detail.label ? (
+                <div className="mb-1 text-muted-foreground text-xs font-medium uppercase tracking-normal">
+                  {detail.label}
+                </div>
+              ) : null}
+              <p className="text-sm leading-6">{detail.value}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
   const [objectUrl, setObjectUrl] = useState<string>();
   const [error, setError] = useState<string>();
+  const imageSummary = evidence.aiSummary || evidence.caption;
 
   useEffect(() => {
     let url: string | undefined;
@@ -108,7 +160,7 @@ function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
     <div className="overflow-hidden rounded-lg border">
       <div className="flex aspect-video items-center justify-center bg-muted">
         {objectUrl ? (
-          <img src={objectUrl} alt={evidence.caption || "Victim provided evidence"} className="h-full w-full object-contain" />
+          <img src={objectUrl} alt={imageSummary || "Victim provided evidence"} className="h-full w-full object-contain" />
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
             <ImageIcon className="size-8" />
@@ -121,10 +173,20 @@ function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
           <Badge variant="outline">{evidence.uploadedBy}</Badge>
           <span className="text-muted-foreground text-xs">{new Date(evidence.createdAt).toLocaleString()}</span>
         </div>
-        <div className="text-sm">{evidence.caption || "No caption provided."}</div>
+        <div className="space-y-3">
+          <FormattedMediaObservation text={imageSummary} />
+          {evidence.description && evidence.description !== imageSummary ? (
+            <div className="rounded-md border border-dashed p-3">
+              <div className="mb-1 text-muted-foreground text-xs font-medium uppercase tracking-normal">Additional note</div>
+              <p className="text-muted-foreground text-sm leading-6">{evidence.description}</p>
+            </div>
+          ) : null}
+        </div>
         <div className="flex flex-wrap gap-2 text-muted-foreground text-xs">
           <span>{evidence.mimeType}</span>
           <span>{formatFileSize(evidence.fileSize)}</span>
+          {typeof evidence.aiConfidence === "number" ? <span>AI confidence {(evidence.aiConfidence * 100).toFixed(0)}%</span> : null}
+          {evidence.aiAnalysisStatus ? <span>{evidence.aiAnalysisStatus}</span> : null}
         </div>
         <Button asChild size="sm" variant="outline">
           <a href={objectUrl} target="_blank" rel="noreferrer">
@@ -296,7 +358,7 @@ export default function IncidentDetailPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="caseNote">Case note</Label>
+                <Label htmlFor="caseNote">Case notes</Label>
                 <Textarea
                   id="caseNote"
                   disabled={!canEdit}
@@ -348,7 +410,7 @@ export default function IncidentDetailPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Media Evidence</CardTitle>
+              <CardTitle>Media observations</CardTitle>
             </CardHeader>
             <CardContent>
               {evidenceQuery.isError ? (
@@ -356,7 +418,7 @@ export default function IncidentDetailPage() {
                   {evidenceQuery.error.message}
                 </div>
               ) : !evidence.length ? (
-                <div className="text-muted-foreground text-sm">No image evidence is linked to this case record yet.</div>
+                <div className="text-muted-foreground text-sm">No media observations are linked to this case record yet.</div>
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
                   {evidence.map((item) => (

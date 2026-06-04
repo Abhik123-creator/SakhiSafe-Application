@@ -31,7 +31,8 @@ export class AdminEvidenceController {
   async streamFile(@Param('id') id: string, @Res({ passthrough: true }) response: Response) {
     const evidence = await this.evidenceService.getActiveFile(id);
     response.setHeader('Content-Type', evidence.mimeType);
-    response.setHeader('Content-Disposition', `inline; filename="${evidence.originalFileName.replaceAll('"', '')}"`);
+    const fileName = (evidence.originalFileName ?? evidence.storedFileName).replaceAll('"', '');
+    response.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
     return new StreamableFile(createReadStream(evidence.storagePath));
   }
 
