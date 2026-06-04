@@ -52,6 +52,49 @@
   --font-sans: var(--font-sans);
 }
 
+.sakhi-heavenly-rays {
+  pointer-events: none;
+  opacity: 0.7;
+  background:
+    linear-gradient(112deg, transparent 0 22%, rgba(255, 245, 210, 0.42) 31%, transparent 42%),
+    linear-gradient(68deg, transparent 0 48%, rgba(255, 255, 255, 0.28) 57%, transparent 68%),
+    linear-gradient(155deg, transparent 0 56%, rgba(178, 145, 83, 0.18) 66%, transparent 78%);
+  background-size: 160% 160%, 180% 180%, 150% 150%;
+  animation: sakhi-rays-drift 16s ease-in-out infinite alternate;
+}
+
+.sakhi-heavenly-shimmer {
+  pointer-events: none;
+  opacity: 0.58;
+  background:
+    radial-gradient(ellipse at 22% 16%, rgba(255, 255, 255, 0.48), transparent 28%),
+    radial-gradient(ellipse at 78% 24%, rgba(255, 232, 174, 0.3), transparent 30%);
+  animation: sakhi-shimmer-breathe 9s ease-in-out infinite;
+}
+
+@keyframes sakhi-rays-drift {
+  from {
+    background-position: 0% 20%, 100% 10%, 20% 100%;
+    transform: scale(1);
+  }
+
+  to {
+    background-position: 80% 70%, 30% 80%, 100% 20%;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes sakhi-shimmer-breathe {
+  0%,
+  100% {
+    opacity: 0.46;
+  }
+
+  50% {
+    opacity: 0.74;
+  }
+}
+
 /* Default theme styles (used when no data-theme-preset is set or when 'default' is selected).
 These serve as the fallback; there is no separate default.css file. */
 :root {

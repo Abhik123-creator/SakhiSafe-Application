@@ -10,6 +10,7 @@ import { ModulesModule } from '../modules/modules.module';
 import { OrganizationsModule } from '../organizations/organizations.module';
 import { PermissionsModule } from '../permissions/permissions.module';
 import { RolesModule } from '../roles/roles.module';
+import { SystemSettingsModule } from '../system-settings/system-settings.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
@@ -26,6 +27,7 @@ import { UsersModule } from '../users/users.module';
     EvidenceModule,
     AuditModule,
     HealthModule,
+    SystemSettingsModule,
   ],
 })
 export class ApiModule {}

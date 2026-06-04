@@ -9,9 +9,11 @@ import logo from "../../../../../../media/LOGO.jpeg";
 
 export default function LoginV1() {
   return (
-    <main className="min-h-dvh overflow-hidden bg-[#fff8f1] text-[#1d163d]">
-      <div className="grid min-h-dvh lg:grid-cols-[1.08fr_0.92fr]">
-        <section className="relative flex min-h-[44rem] items-center justify-center overflow-hidden bg-[#fbf0e8] px-6 py-10 sm:px-10 lg:min-h-dvh lg:px-14">
+    <main className="relative h-dvh overflow-hidden bg-[#fff8f1] text-[#1d163d]">
+      <div className="sakhi-heavenly-rays absolute inset-0" />
+      <div className="sakhi-heavenly-shimmer absolute inset-0" />
+      <div className="relative z-10 grid h-dvh overflow-hidden lg:grid-cols-[1.08fr_0.92fr]">
+        <section className="relative hidden h-dvh items-center justify-center overflow-hidden bg-[#fbf0e8]/88 px-6 py-6 sm:px-10 lg:flex lg:px-14">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(0,128,145,0.16),transparent_28%),radial-gradient(circle_at_80%_8%,rgba(178,145,83,0.22),transparent_24%),linear-gradient(135deg,rgba(42,24,83,0.1),transparent_48%)]" />
           <div className="absolute left-8 top-8 hidden h-24 w-24 rounded-full border border-[#2b1853]/15 lg:block" />
           <div className="absolute bottom-10 right-10 hidden h-32 w-32 rounded-full border border-[#b29153]/30 lg:block" />
@@ -58,7 +60,7 @@ export default function LoginV1() {
           </div>
         </section>
 
-        <section className="flex items-center justify-center px-5 py-10 sm:px-8 lg:px-12">
+        <section className="flex h-dvh items-center justify-center overflow-hidden px-5 py-4 sm:px-8 lg:px-12">
           <div className="w-full max-w-[29rem]">
             <div className="mb-8 lg:hidden">
               <Image src={logo} alt="SakhiSafe" priority className="mx-auto h-auto w-full max-w-xs rounded-2xl shadow-xl" />

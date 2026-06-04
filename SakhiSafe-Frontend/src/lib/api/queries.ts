@@ -16,6 +16,11 @@ import type {
   Organization,
   Role,
   RolePermission,
+  SystemInfo,
+  SystemMaintenanceAction,
+  SystemMaintenanceResult,
+  SystemSettings,
+  UpdateSystemSettingsInput,
   User,
   CreateCaseInput,
   CreateCareSeekerInput,
@@ -50,6 +55,8 @@ export const queryKeys = {
   modules: ["modules"] as const,
   roles: ["roles"] as const,
   rolePermissions: (roleId: string) => ["roles", roleId, "permissions"] as const,
+  systemSettings: ["system-settings"] as const,
+  systemInfo: ["system-settings", "info"] as const,
 };
 
 export function useLoginMutation() {
@@ -258,5 +265,41 @@ export function useUpdateRolePermissionsMutation(roleId: string) {
       queryClient.invalidateQueries({ queryKey: queryKeys.rolePermissions(roleId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.me });
     },
+  });
+}
+
+export function useSystemSettingsQuery() {
+  return useQuery({
+    queryKey: queryKeys.systemSettings,
+    queryFn: () => apiGet<SystemSettings>(`${API_PREFIX}/system-settings`),
+  });
+}
+
+export function useUpdateSystemSettingsMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: UpdateSystemSettingsInput) =>
+      apiPut<SystemSettings, UpdateSystemSettingsInput>(`${API_PREFIX}/system-settings`, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
+      queryClient.invalidateQueries({ queryKey: queryKeys.me });
+    },
+  });
+}
+
+export function useSystemInfoQuery() {
+  return useQuery({
+    queryKey: queryKeys.systemInfo,
+    queryFn: () => apiGet<SystemInfo>(`${API_PREFIX}/system-settings/info`),
+  });
+}
+
+export function useSystemMaintenanceMutation() {
+  return useMutation({
+    mutationFn: (action: SystemMaintenanceAction) =>
+      apiPost<SystemMaintenanceResult, { action: SystemMaintenanceAction }>(`${API_PREFIX}/system-settings/maintenance`, {
+        action,
+      }),
   });
 }

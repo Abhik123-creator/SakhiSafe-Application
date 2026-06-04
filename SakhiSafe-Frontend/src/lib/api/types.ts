@@ -220,6 +220,49 @@ export interface HealthStatus {
   timestamp: string;
 }
 
+export interface SystemSettings {
+  branding: {
+    siteName: string;
+    logoUrl?: string;
+  };
+  smtp: {
+    host: string;
+    port: number;
+    fromEmail: string;
+    fromName: string;
+    username: string;
+    useTls: boolean;
+    passwordConfigured: boolean;
+  };
+  security: {
+    sessionTtlSeconds: number;
+    auditLoggingEnabled: boolean;
+  };
+}
+
+export type UpdateSystemSettingsInput = Partial<{
+  branding: Partial<SystemSettings["branding"]>;
+  smtp: Partial<Omit<SystemSettings["smtp"], "passwordConfigured">> & { password?: string };
+  security: Partial<SystemSettings["security"]>;
+}>;
+
+export interface SystemInfo {
+  appName: string;
+  environment: string;
+  nodeVersion: string;
+  uptimeSeconds: number;
+  timestamp: string;
+}
+
+export type SystemMaintenanceAction = "CLEAR_CACHE" | "FIX_FILE_PERMISSIONS" | "BACKUP_DATABASE";
+
+export interface SystemMaintenanceResult {
+  action: SystemMaintenanceAction;
+  status: string;
+  message: string;
+  requestedAt: string;
+}
+
 export interface CreateOrganizationInput {
   name: string;
   type: OrganizationType;

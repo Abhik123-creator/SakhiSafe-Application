@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ExternalLink, ImageIcon, Save } from "lucide-react";
+import { Download, ExternalLink, ImageIcon, Save } from "lucide-react";
 import { useParams } from "next/navigation";
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
@@ -20,6 +20,7 @@ import { useIncidentEvidenceQuery, useIncidentQuery, useUpdateIncidentMutation }
 import type { EvidenceListItem, IncidentCategory, IncidentSeverity, IncidentStatus, IncidentUrgency, UpdateIncidentInput } from "@/lib/api/types";
 import { ModuleRouteGuard } from "@/lib/auth/module-route-guard";
 import { can } from "@/lib/permissions";
+import { downloadIncidentReportPdf } from "@/lib/reports/incident-report-pdf";
 import { useAuthStore } from "@/stores/auth/auth-store";
 
 const categoryOptions: IncidentCategory[] = [
@@ -207,6 +208,7 @@ export default function IncidentDetailPage() {
   const evidenceQuery = useIncidentEvidenceQuery(params.id);
   const updateIncident = useUpdateIncidentMutation(params.id);
   const [form, setForm] = useState<UpdateIncidentInput>({});
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
 
   useEffect(() => {
     if (data) {
@@ -243,19 +245,39 @@ export default function IncidentDetailPage() {
   const messages = data.conversationMessagesTimeline ?? [];
   const evidence = evidenceQuery.data ?? data.evidence ?? [];
 
+  async function handleDownloadPdf() {
+    if (!data) {
+      return;
+    }
+
+    const incident = data;
+    setIsExportingPdf(true);
+    try {
+      await downloadIncidentReportPdf({ incident, evidence });
+    } finally {
+      setIsExportingPdf(false);
+    }
+  }
+
   return (
     <ModuleRouteGuard moduleKey="INCIDENTS">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <PageHeader title={data.title} description="AI-organized incident record linked to the intake conversation." />
-        {canEdit && (
-          <Button
-            disabled={updateIncident.isPending}
-            onClick={() => updateIncident.mutate(form)}
-          >
-            <Save />
-            Save
+        <div className="flex flex-wrap gap-2">
+          <Button disabled={isExportingPdf || evidenceQuery.isLoading} variant="outline" onClick={handleDownloadPdf}>
+            <Download />
+            {isExportingPdf ? "Preparing PDF..." : "Download PDF"}
           </Button>
-        )}
+          {canEdit && (
+            <Button
+              disabled={updateIncident.isPending}
+              onClick={() => updateIncident.mutate(form)}
+            >
+              <Save />
+              Save
+            </Button>
+          )}
+        </div>
       </div>
 
       {updateIncident.isError && <div className="mb-4 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">{updateIncident.error.message}</div>}

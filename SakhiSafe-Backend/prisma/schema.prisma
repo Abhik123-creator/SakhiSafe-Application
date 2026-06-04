@@ -184,6 +184,8 @@ enum AuditAction {
   ROLE_CHANGED
   MODULE_TOGGLED
   PERMISSIONS_UPDATED
+  SYSTEM_SETTINGS_UPDATED
+  SYSTEM_MAINTENANCE_REQUESTED
 }
 
 model User {
@@ -198,6 +200,7 @@ model User {
   casesCreated   Case[]        @relation("CaseCreatedBy")
   casesAssigned  Case[]        @relation("CaseAssignedTo")
   auditLogs      AuditLog[]     @relation("ActorAuditLogs")
+  systemSettingsUpdated SystemSetting[] @relation("SystemSettingUpdatedBy")
   isActive       Boolean       @default(true)
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
@@ -234,6 +237,18 @@ model AppModule {
   permissions RolePermission[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  value       Json
+  description String?
+  isSensitive Boolean  @default(false)
+  updatedById String?  @db.Uuid
+  updatedBy   User?    @relation("SystemSettingUpdatedBy", fields: [updatedById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model RolePermission {
