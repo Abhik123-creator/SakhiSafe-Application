@@ -1,6 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createCipheriv, createHash, randomBytes } from 'crypto';
+import { createCipheriv, createHash, randomBytes, randomUUID } from 'crypto';
+import { mkdir, writeFile } from 'fs/promises';
+import { extname, resolve } from 'path';
 import { Prisma } from '@prisma/client';
 import { SystemMaintenanceAction } from '../dto/system-maintenance.dto';
 import { UpdateSystemSettingsDto } from '../dto/update-system-settings.dto';
@@ -15,7 +17,7 @@ const SETTING_KEYS = {
 const DEFAULT_SETTINGS = {
   branding: {
     siteName: 'SakhiSafe-SakhaVasudev',
-    logoUrl: '/media/LOGO.jpeg',
+    logoUrl: '/logo.jpeg',
   },
   smtp: {
     host: '',
@@ -33,6 +35,23 @@ const DEFAULT_SETTINGS = {
 };
 
 type SettingsKey = keyof typeof DEFAULT_SETTINGS;
+export interface BrandingUploadFile {
+  originalname: string;
+  mimetype: string;
+  size: number;
+  buffer: Buffer;
+}
+
+const BRANDING_UPLOAD_DIR = resolve(process.cwd(), 'private', 'uploads', 'branding');
+const MAX_BRANDING_IMAGE_BYTES = 2 * 1024 * 1024;
+const ALLOWED_BRANDING_MIME_TYPES = new Map([
+  ['image/png', '.png'],
+  ['image/jpeg', '.jpg'],
+  ['image/webp', '.webp'],
+  ['image/svg+xml', '.svg'],
+  ['image/x-icon', '.ico'],
+  ['image/vnd.microsoft.icon', '.ico'],
+]);
 
 @Injectable()
 export class SystemSettingsService {
@@ -53,6 +72,11 @@ export class SystemSettingsService {
     return this.redact(settings);
   }
 
+  async getPublicBranding() {
+    const settings = await this.getRawSettings();
+    return settings.branding;
+  }
+
   async updateSettings(dto: UpdateSystemSettingsDto, updatedById?: string) {
     const current = await this.getRawSettings();
 
@@ -68,7 +92,7 @@ export class SystemSettingsService {
 
     if (dto.smtp) {
       const { password, ...smtp } = dto.smtp;
-      const nextSmtp = { ...current.smtp, ...smtp };
+      const nextSmtp = { ...current.smtp, ...this.cleanSmtpSettings(smtp) };
       if (password?.trim()) {
         nextSmtp.passwordEncrypted = this.encryptSecret(password);
       }
@@ -92,6 +116,43 @@ export class SystemSettingsService {
     }
 
     return this.getSettings();
+  }
+
+  async uploadBrandingLogo(file: BrandingUploadFile | undefined, updatedById?: string) {
+    if (!file) {
+      throw new BadRequestException('Logo image is required');
+    }
+
+    const extension = ALLOWED_BRANDING_MIME_TYPES.get(file.mimetype);
+    if (!extension) {
+      throw new BadRequestException('Logo must be a PNG, JPEG, WebP, SVG, or ICO image');
+    }
+
+    if (file.size > MAX_BRANDING_IMAGE_BYTES) {
+      throw new BadRequestException('Logo image must be 2MB or smaller');
+    }
+
+    const finalExtension = extension || extname(file.originalname).toLowerCase();
+    const fileName = `${randomUUID()}${finalExtension}`;
+    await mkdir(BRANDING_UPLOAD_DIR, { recursive: true });
+    await writeFile(resolve(BRANDING_UPLOAD_DIR, fileName), file.buffer);
+
+    const logoUrl = `/uploads/branding/${fileName}`;
+    const current = await this.getRawSettings();
+    await this.repository.upsert(
+      SETTING_KEYS.branding,
+      { ...current.branding, logoUrl },
+      updatedById,
+      false,
+      'Application shell and authentication branding',
+    );
+
+    return {
+      logoUrl,
+      fileName,
+      mimeType: file.mimetype,
+      size: file.size,
+    };
   }
 
   getSystemInfo() {
@@ -139,6 +200,12 @@ export class SystemSettingsService {
         passwordConfigured: Boolean(passwordEncrypted),
       },
     };
+  }
+
+  private cleanSmtpSettings<T extends Record<string, unknown>>(smtp: T) {
+    return Object.fromEntries(
+      Object.entries(smtp).map(([key, value]) => [key, typeof value === 'string' && value.trim() === '' ? undefined : value]),
+    );
   }
 
   private encryptSecret(secret: string) {

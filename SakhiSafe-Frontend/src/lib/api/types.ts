@@ -34,6 +34,8 @@ export interface User {
   roles?: UserRole[];
   isActive?: boolean;
   createdAt?: string;
+  evidenceAccessCodeIssuedAt?: string | null;
+  oneTimeEvidenceAccessCode?: string;
 }
 
 export interface Organization {
@@ -240,6 +242,8 @@ export interface SystemSettings {
   };
 }
 
+export type PublicBranding = SystemSettings["branding"];
+
 export type UpdateSystemSettingsInput = Partial<{
   branding: Partial<SystemSettings["branding"]>;
   smtp: Partial<Omit<SystemSettings["smtp"], "passwordConfigured">> & { password?: string };
@@ -289,6 +293,15 @@ export interface CreateCaseInput {
   incidentDescription?: string;
   status?: CaseStatus;
   riskLevel?: RiskLevel;
+}
+
+export interface CreateUserInput {
+  email: string;
+  password: string;
+  fullName: string;
+  phone?: string;
+  organizationId?: string;
+  roles?: RoleName[];
 }
 
 export type RoleName = "SUPER_ADMIN" | "ADMIN" | "ORGANIZATION" | "CARE_SEEKER";

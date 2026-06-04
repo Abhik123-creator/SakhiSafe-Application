@@ -24,8 +24,8 @@ export class UsersController {
 
   @Get(':id')
   @RequirePermission(ModuleKey.USERS, PermissionAction.VIEW)
-  findOne(@Param('id') id: string) {
-    return this.usersService.findById(id);
+  async findOne(@Param('id') id: string) {
+    return this.usersService.toPublicUser(await this.usersService.findById(id));
   }
 
   @Post()

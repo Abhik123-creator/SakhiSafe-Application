@@ -20,6 +20,10 @@ export class UsersRepository {
     return this.prisma.user.findFirst({ where: { email, deletedAt: null }, include: userInclude });
   }
 
+  findByEvidenceAccessCodeHash(evidenceAccessCodeHash: string) {
+    return this.prisma.user.findFirst({ where: { evidenceAccessCodeHash }, select: { id: true } });
+  }
+
   async create(data: Prisma.UserCreateInput, roles: RoleName[] = []) {
     return this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({ data });

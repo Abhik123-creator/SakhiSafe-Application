@@ -1,11 +1,11 @@
 import Link from "next/link";
-import Image from "next/image";
 
 import { HeartHandshake, LockKeyhole, ShieldCheck, Sparkles } from "lucide-react";
 
+import { BrandingLogo, BrandingName } from "@/components/branding/branding-logo";
+
 import { LoginForm } from "../../_components/login-form";
 import { GoogleButton } from "../../_components/social-auth/google-button";
-import logo from "../../../../../../media/LOGO.jpeg";
 
 export default function LoginV1() {
   return (
@@ -21,12 +21,7 @@ export default function LoginV1() {
           <div className="relative z-10 flex w-full max-w-3xl flex-col items-center text-center">
             <div className="relative w-full max-w-[36rem]">
               <div className="absolute -inset-5 rounded-[2rem] bg-white/45 blur-2xl" />
-              <Image
-                src={logo}
-                alt="SakhiSafe"
-                priority
-                className="relative h-auto w-full rounded-2xl border border-white/70 shadow-[0_30px_90px_rgba(42,24,83,0.2)]"
-              />
+              <BrandingLogo className="relative h-auto w-full rounded-2xl border border-white/70 shadow-[0_30px_90px_rgba(42,24,83,0.2)]" />
             </div>
 
             <div className="mt-8 max-w-2xl space-y-4">
@@ -63,7 +58,7 @@ export default function LoginV1() {
         <section className="flex h-dvh items-center justify-center overflow-hidden px-5 py-4 sm:px-8 lg:px-12">
           <div className="w-full max-w-[29rem]">
             <div className="mb-8 lg:hidden">
-              <Image src={logo} alt="SakhiSafe" priority className="mx-auto h-auto w-full max-w-xs rounded-2xl shadow-xl" />
+              <BrandingLogo className="mx-auto h-auto w-full max-w-xs rounded-2xl shadow-xl" />
             </div>
 
             <div className="rounded-2xl border border-[#ead9c6] bg-white/90 p-6 shadow-[0_24px_70px_rgba(42,24,83,0.14)] backdrop-blur sm:p-8">
@@ -75,7 +70,7 @@ export default function LoginV1() {
                   <p className="font-medium text-[#b29153] text-sm uppercase tracking-[0.18em]">Authorized access</p>
                   <h2 className="font-semibold text-3xl text-[#1d163d]">Welcome back</h2>
                   <p className="text-[#635b73] text-sm leading-6">
-                    Sign in to continue managing SakhiSafe response operations.
+                    Sign in to continue managing <BrandingName /> response operations.
                   </p>
                 </div>
               </div>

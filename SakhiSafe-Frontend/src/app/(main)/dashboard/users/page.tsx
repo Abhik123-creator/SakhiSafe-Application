@@ -2,6 +2,7 @@
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { AccessDenied } from "@/components/dashboard/access-denied";
+import { CreateUserDialog } from "@/components/dashboard/create-user-dialog";
 import { EmptyState, ErrorState, LoadingState } from "@/components/dashboard/page-state";
 import { ResourceTable } from "@/components/dashboard/resource-table";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,7 @@ import type { User } from "@/lib/api/types";
 export default function UsersPage() {
   const user = useAuthStore((state) => state.user);
   const { data, isLoading, isError, error } = useUsersQuery();
+  const canCreate = can(user, "USERS", "CREATE");
 
   if (!can(user, "USERS", "VIEW")) {
     return <AccessDenied />;
@@ -29,7 +31,10 @@ export default function UsersPage() {
 
   return (
     <ModuleRouteGuard moduleKey="USERS">
-      <PageHeader title="Users" description="Application users and assigned roles from the backend." />
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <PageHeader title="Users" description="Application users and assigned roles from the backend." />
+        {canCreate && <CreateUserDialog />}
+      </div>
       {!data?.length ? (
         <EmptyState title="No users found" />
       ) : (

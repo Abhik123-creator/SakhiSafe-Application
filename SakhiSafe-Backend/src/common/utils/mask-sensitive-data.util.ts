@@ -3,6 +3,7 @@ const SENSITIVE_KEYS = [
   'passwordHash',
   'token',
   'accessToken',
+  'accessCode',
   'authorization',
   'phone',
   'name',
@@ -14,8 +15,19 @@ const SENSITIVE_KEYS = [
   'messageContent',
   'incidentDescription',
   'evidence',
+  'evidenceAccessCode',
+  'evidenceAccessCodeHash',
+  'oneTimeEvidenceAccessCode',
   'evidenceData',
   'safetyNotes',
+];
+
+const FULL_REDACT_KEYS = [
+  'accessCode',
+  'evidenceAccessCode',
+  'evidenceAccessCodeHash',
+  'oneTimeEvidenceAccessCode',
+  'x-evidence-access-code',
 ];
 
 export function maskValue(value: unknown): string {
@@ -40,7 +52,17 @@ export function maskSensitiveData<T>(input: T): T {
 
   return Object.fromEntries(
     Object.entries(input as Record<string, unknown>).map(([key, value]) => {
-      if (SENSITIVE_KEYS.some((sensitiveKey) => key.toLowerCase().includes(sensitiveKey.toLowerCase()))) {
+      const loweredKey = key.toLowerCase();
+      const normalizedKey = loweredKey.replace(/[^a-z0-9]/g, '');
+      if (
+        FULL_REDACT_KEYS.some((sensitiveKey) => {
+          const loweredSensitiveKey = sensitiveKey.toLowerCase();
+          return loweredKey.includes(loweredSensitiveKey) || normalizedKey.includes(loweredSensitiveKey.replace(/[^a-z0-9]/g, ''));
+        })
+      ) {
+        return [key, '[REDACTED]'];
+      }
+      if (SENSITIVE_KEYS.some((sensitiveKey) => loweredKey.includes(sensitiveKey.toLowerCase()))) {
         return [key, maskValue(value)];
       }
       return [key, maskSensitiveData(value)];

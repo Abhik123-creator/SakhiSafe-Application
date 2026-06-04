@@ -12,6 +12,7 @@ import { AuditLogInterceptor } from './common/interceptors/audit-log.interceptor
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { maskSensitiveData } from './common/utils/mask-sensitive-data.util';
 import { InternalModule } from './internal/internal.module';
+import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 
@@ -21,6 +22,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
       isGlobal: true,
       load: [appConfig, databaseConfig, authConfig],
     }),
+    MailModule,
     LoggerModule.forRoot({
       pinoHttp: {
         genReqId: (req) => {
@@ -60,10 +62,14 @@ import { WebhooksModule } from './webhooks/webhooks.module';
       path: '/nestlens',
       security: {
         dataMasking: {
-          sensitiveHeaders: ['authorization'],
+          sensitiveHeaders: ['authorization', 'x-evidence-access-code'],
           sensitiveParams: [
             'password',
             'token',
+            'accessCode',
+            'evidenceAccessCode',
+            'evidenceAccessCodeHash',
+            'oneTimeEvidenceAccessCode',
             'phone',
             'name',
             'address',
@@ -73,11 +79,13 @@ import { WebhooksModule } from './webhooks/webhooks.module';
             'evidence',
             'safetyNotes',
           ],
+          maskReplacement: '[REDACTED]',
         },
         stackTraceSanitization: 'partial',
       },
       watchers: {
         request: { enabled: true, captureHeaders: true, captureBody: true },
+        mail: { enabled: true },
         model: { enabled: true, captureData: false },
         redis: { enabled: false },
         job: { enabled: false },

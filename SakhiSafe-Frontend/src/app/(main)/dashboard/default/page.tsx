@@ -1,12 +1,15 @@
 import { ModuleRouteGuard } from "@/lib/auth/module-route-guard";
 import Link from "next/link";
+import { BrandingName } from "@/components/branding/branding-logo";
 
 export default function Page() {
   return (
     <ModuleRouteGuard moduleKey="DASHBOARD">
       <div className="space-y-6">
       <div>
-        <h1 className="font-semibold text-2xl tracking-tight">SakhiSafe Overview</h1>
+        <h1 className="font-semibold text-2xl tracking-tight">
+          <BrandingName suffix="Overview" />
+        </h1>
         <p className="mt-1 text-muted-foreground text-sm">
           Initial dashboard shell connected to the NestJS API. Replace these panels as backend analytics mature.
         </p>

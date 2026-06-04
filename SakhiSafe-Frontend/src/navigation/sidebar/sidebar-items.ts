@@ -58,7 +58,7 @@ export interface NavGroup {
 export const sidebarItems: NavGroup[] = [
   {
     id: 0,
-    label: "SakhiSafe",
+    label: "Workspace",
     items: [
       {
         title: "Overview",

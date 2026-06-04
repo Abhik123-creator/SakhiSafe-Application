@@ -194,6 +194,8 @@ model User {
   passwordHash   String
   fullName       String     @map("name")
   phone          String?
+  evidenceAccessCodeHash String? @unique
+  evidenceAccessCodeIssuedAt DateTime?
   organizationId String?       @db.Uuid
   organization   Organization? @relation(fields: [organizationId], references: [id])
   roles          UserRole[]

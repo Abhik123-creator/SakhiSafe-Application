@@ -4,7 +4,9 @@ import { NestFactory } from '@nestjs/core';
 import { Reflector } from '@nestjs/core';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
 import helmet from 'helmet';
+import { resolve } from 'path';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -18,9 +20,10 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   app.use(new RequestIdMiddleware().use);
-  app.use(helmet());
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(compression());
   app.use(cookieParser());
+  app.use('/uploads/branding', express.static(resolve(process.cwd(), 'private', 'uploads', 'branding')));
   app.enableCors({
     origin: config.get<string>('app.frontendUrl'),
     credentials: true,

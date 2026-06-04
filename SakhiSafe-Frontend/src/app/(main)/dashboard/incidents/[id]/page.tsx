@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, ExternalLink, ImageIcon, Save } from "lucide-react";
+import { Download, ExternalLink, ImageIcon, KeyRound, Save } from "lucide-react";
 import { useParams } from "next/navigation";
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { apiClient } from "@/lib/api/client";
 import { useIncidentEvidenceQuery, useIncidentQuery, useUpdateIncidentMutation } from "@/lib/api/queries";
-import type { EvidenceListItem, IncidentCategory, IncidentSeverity, IncidentStatus, IncidentUrgency, UpdateIncidentInput } from "@/lib/api/types";
+import type { AuthUser, EvidenceListItem, IncidentCategory, IncidentSeverity, IncidentStatus, IncidentUrgency, UpdateIncidentInput } from "@/lib/api/types";
 import { ModuleRouteGuard } from "@/lib/auth/module-route-guard";
 import { can } from "@/lib/permissions";
 import { downloadIncidentReportPdf } from "@/lib/reports/incident-report-pdf";
@@ -59,7 +59,7 @@ function FieldValue({ label, value }: { label: string; value?: string | null }) 
   return (
     <div>
       <div className="text-muted-foreground text-xs">{label}</div>
-      <div className="font-medium text-sm">{value || "-"}</div>
+      <div className="font-medium text-sm">{value ?? "-"}</div>
     </div>
   );
 }
@@ -75,13 +75,13 @@ function formatFileSize(bytes: number) {
 }
 
 function FormattedMediaObservation({ text }: { text?: string | null }) {
-  const sections = (text || "")
+  const sections = (text ?? "")
     .split(/\n+/)
     .map((section) => section.trim())
     .filter(Boolean);
 
   if (!sections.length) {
-    return <div className="text-sm font-medium">No image summary provided.</div>;
+    return <div className="font-medium text-sm">No image summary provided.</div>;
   }
 
   const [rawOverview, ...details] = sections;
@@ -104,7 +104,7 @@ function FormattedMediaObservation({ text }: { text?: string | null }) {
   return (
     <div className="space-y-3">
       <div className="rounded-md border bg-muted/35 p-3">
-        <div className="mb-1 text-muted-foreground text-xs font-medium uppercase tracking-normal">Observation</div>
+        <div className="mb-1 font-medium text-muted-foreground text-xs uppercase tracking-normal">Observation</div>
         <p className="text-sm leading-6">{overview}</p>
       </div>
       {parsedDetails.length ? (
@@ -112,7 +112,7 @@ function FormattedMediaObservation({ text }: { text?: string | null }) {
           {parsedDetails.map((detail, index) => (
             <div key={`${detail.label || "detail"}-${index}`} className="rounded-md border p-3">
               {detail.label ? (
-                <div className="mb-1 text-muted-foreground text-xs font-medium uppercase tracking-normal">
+                <div className="mb-1 font-medium text-muted-foreground text-xs uppercase tracking-normal">
                   {detail.label}
                 </div>
               ) : null}
@@ -125,17 +125,32 @@ function FormattedMediaObservation({ text }: { text?: string | null }) {
   );
 }
 
-function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
+function isAdminUser(user?: AuthUser | null) {
+  return Boolean(user?.roles?.some((role) => role === "SUPER_ADMIN" || role === "ADMIN"));
+}
+
+function normalizeEvidenceAccessCode(code: string | null) {
+  return code?.replace(/\D/g, "").slice(0, 6) ?? "";
+}
+
+function EvidenceImage({ evidence, evidenceAccessCode, requiresAccessCode }: { evidence: EvidenceListItem; evidenceAccessCode?: string; requiresAccessCode: boolean }) {
   const [objectUrl, setObjectUrl] = useState<string>();
   const [error, setError] = useState<string>();
-  const imageSummary = evidence.aiSummary || evidence.caption;
+  const imageSummary = evidence.aiSummary ?? evidence.caption;
 
   useEffect(() => {
+    if (requiresAccessCode && !evidenceAccessCode) {
+      return;
+    }
+
     let url: string | undefined;
     let cancelled = false;
 
     apiClient
-      .get(`/admin/v1/evidence/${evidence.id}/file`, { responseType: "blob" })
+      .get(`/admin/v1/evidence/${evidence.id}/file`, {
+        responseType: "blob",
+        headers: evidenceAccessCode ? { "x-evidence-access-code": evidenceAccessCode } : undefined,
+      })
       .then((response) => {
         if (cancelled) {
           return;
@@ -155,7 +170,7 @@ function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
         URL.revokeObjectURL(url);
       }
     };
-  }, [evidence.id]);
+  }, [evidence.id, evidenceAccessCode, requiresAccessCode]);
 
   return (
     <div className="overflow-hidden rounded-lg border">
@@ -165,7 +180,7 @@ function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
         ) : (
           <div className="flex flex-col items-center gap-2 text-muted-foreground text-sm">
             <ImageIcon className="size-8" />
-            {error ? "Unable to load image" : "Loading image"}
+            {requiresAccessCode && !evidenceAccessCode ? "Evidence access code required" : error ? "Unable to load image" : "Loading image"}
           </div>
         )}
       </div>
@@ -178,7 +193,7 @@ function EvidenceImage({ evidence }: { evidence: EvidenceListItem }) {
           <FormattedMediaObservation text={imageSummary} />
           {evidence.description && evidence.description !== imageSummary ? (
             <div className="rounded-md border border-dashed p-3">
-              <div className="mb-1 text-muted-foreground text-xs font-medium uppercase tracking-normal">Additional note</div>
+              <div className="mb-1 font-medium text-muted-foreground text-xs uppercase tracking-normal">Additional note</div>
               <p className="text-muted-foreground text-sm leading-6">{evidence.description}</p>
             </div>
           ) : null}
@@ -204,8 +219,14 @@ export default function IncidentDetailPage() {
   const params = useParams<{ id: string }>();
   const user = useAuthStore((state) => state.user);
   const canEdit = can(user, "INCIDENTS", "UPDATE");
+  const requiresEvidenceAccessCode = !isAdminUser(user);
+  const [evidenceAccessCode, setEvidenceAccessCode] = useState("");
   const { data, isLoading, isError, error } = useIncidentQuery(params.id);
-  const evidenceQuery = useIncidentEvidenceQuery(params.id);
+  const evidenceQuery = useIncidentEvidenceQuery(
+    params.id,
+    evidenceAccessCode,
+    !requiresEvidenceAccessCode || evidenceAccessCode.length === 6,
+  );
   const updateIncident = useUpdateIncidentMutation(params.id);
   const [form, setForm] = useState<UpdateIncidentInput>({});
   const [isExportingPdf, setIsExportingPdf] = useState(false);
@@ -243,7 +264,16 @@ export default function IncidentDetailPage() {
   }
 
   const messages = data.conversationMessagesTimeline ?? [];
-  const evidence = evidenceQuery.data ?? data.evidence ?? [];
+  const evidence = evidenceQuery.data ?? (!requiresEvidenceAccessCode ? (data.evidence ?? []) : []);
+
+  function requestEvidenceAccessCode() {
+    const code = normalizeEvidenceAccessCode(window.prompt("Enter your 6-digit evidence access code") ?? "");
+    if (code.length !== 6) {
+      return null;
+    }
+    setEvidenceAccessCode(code);
+    return code;
+  }
 
   async function handleDownloadPdf() {
     if (!data) {
@@ -251,9 +281,21 @@ export default function IncidentDetailPage() {
     }
 
     const incident = data;
+    const accessCode = requiresEvidenceAccessCode ? evidenceAccessCode || requestEvidenceAccessCode() : undefined;
+    if (requiresEvidenceAccessCode && !accessCode) {
+      return;
+    }
     setIsExportingPdf(true);
     try {
-      await downloadIncidentReportPdf({ incident, evidence });
+      const evidenceForReport =
+        evidence.length || !requiresEvidenceAccessCode
+          ? evidence
+          : (
+              await apiClient.get(`/admin/v1/incidents/${params.id}/evidence`, {
+                headers: accessCode ? { "x-evidence-access-code": accessCode } : undefined,
+              })
+            ).data.data;
+      await downloadIncidentReportPdf({ incident, evidence: evidenceForReport, evidenceAccessCode: accessCode ?? undefined });
     } finally {
       setIsExportingPdf(false);
     }
@@ -264,6 +306,16 @@ export default function IncidentDetailPage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <PageHeader title={data.title} description="AI-organized incident record linked to the intake conversation." />
         <div className="flex flex-wrap gap-2">
+          {requiresEvidenceAccessCode && (
+            <Button
+              disabled={evidenceQuery.isFetching}
+              variant={evidenceAccessCode ? "secondary" : "outline"}
+              onClick={() => requestEvidenceAccessCode()}
+            >
+              <KeyRound />
+              {evidenceAccessCode ? "Evidence Unlocked" : "Unlock Evidence"}
+            </Button>
+          )}
           <Button disabled={isExportingPdf || evidenceQuery.isLoading} variant="outline" onClick={handleDownloadPdf}>
             <Download />
             {isExportingPdf ? "Preparing PDF..." : "Download PDF"}
@@ -435,7 +487,11 @@ export default function IncidentDetailPage() {
               <CardTitle>Media observations</CardTitle>
             </CardHeader>
             <CardContent>
-              {evidenceQuery.isError ? (
+              {requiresEvidenceAccessCode && !evidenceAccessCode ? (
+                <div className="rounded-lg border border-dashed p-4 text-muted-foreground text-sm">
+                  Enter your 6-digit evidence access code to view submitted evidence or include images in the PDF.
+                </div>
+              ) : evidenceQuery.isError ? (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive text-sm">
                   {evidenceQuery.error.message}
                 </div>
@@ -444,7 +500,12 @@ export default function IncidentDetailPage() {
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
                   {evidence.map((item) => (
-                    <EvidenceImage key={item.id} evidence={item} />
+                    <EvidenceImage
+                      key={item.id}
+                      evidence={item}
+                      evidenceAccessCode={evidenceAccessCode}
+                      requiresAccessCode={requiresEvidenceAccessCode}
+                    />
                   ))}
                 </div>
               )}

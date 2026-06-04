@@ -118,7 +118,7 @@ export class IncidentsService {
     };
   }
 
-  async findById(id: string) {
+  async findById(id: string, options: { includeEvidence?: boolean } = {}) {
     const incident = await this.incidentsRepository.findById(id);
     if (!incident) {
       throw new NotFoundException();
@@ -147,7 +147,7 @@ export class IncidentsService {
           }
         : null,
       conversationMessagesTimeline: incident.session?.messages ?? [],
-      evidence: incident.evidence ?? [],
+      evidence: options.includeEvidence ? (incident.evidence ?? []) : [],
     };
   }
 

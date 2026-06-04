@@ -3,12 +3,16 @@ import packageJson from "../../package.json";
 const currentYear = new Date().getFullYear();
 
 export const APP_CONFIG = {
-  name: "Studio Admin",
+  name: "SakhiSafe",
   version: packageJson.version,
-  copyright: `© ${currentYear}, Studio Admin.`,
+  copyright: `© ${currentYear}, SakhiSafe.`,
+  branding: {
+    logoPath: "/logo.jpeg",
+    logoAlt: "SakhiSafe logo",
+  },
   meta: {
-    title: "Studio Admin - Modern Next.js Dashboard Starter Template",
+    title: "SakhiSafe - Secure Care Response Dashboard",
     description:
-      "Studio Admin is a modern, open-source dashboard starter template built with Next.js 16, Tailwind CSS v4, and shadcn/ui. Perfect for SaaS apps, admin panels, and internal tools—fully customizable and production-ready.",
+      "SakhiSafe provides a secure workspace for care coordination, case response, incident review, and survivor support operations.",
   },
 };

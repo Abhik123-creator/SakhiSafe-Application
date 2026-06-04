@@ -10,14 +10,25 @@ describe('AdminEvidenceController', () => {
     getActiveFile: jest.fn(),
     listActiveByIncident: jest.fn(),
   };
-  const controller = new AdminEvidenceController(evidenceService as any);
+  const evidenceAccessService = {
+    assertEvidenceAccess: jest.fn(),
+  };
+  const adminUser = { id: 'user-id', email: 'admin@example.com', roles: ['ADMIN'] };
+  const controller = new AdminEvidenceController(evidenceService as any, evidenceAccessService as any);
 
   beforeEach(() => jest.clearAllMocks());
 
   it('lists image evidence metadata for an incident', async () => {
     evidenceService.listActiveByIncident.mockResolvedValue([{ id: 'evidence-id', evidenceType: 'IMAGE' }]);
 
-    await expect(controller.findByIncident('incident-id')).resolves.toEqual([{ id: 'evidence-id', evidenceType: 'IMAGE' }]);
+    await expect(controller.findByIncident('incident-id', adminUser)).resolves.toEqual([
+      { id: 'evidence-id', evidenceType: 'IMAGE' },
+    ]);
+    expect(evidenceAccessService.assertEvidenceAccess).toHaveBeenCalledWith(
+      adminUser,
+      undefined,
+      'incident:incident-id:evidence:list',
+    );
   });
 
   it('streams an active image file', async () => {
@@ -32,7 +43,7 @@ describe('AdminEvidenceController', () => {
     });
     const response = { setHeader: jest.fn() };
 
-    const result = await controller.streamFile('evidence-id', response as any);
+    const result = await controller.streamFile('evidence-id', adminUser, undefined, response as any);
 
     expect(result).toBeInstanceOf(StreamableFile);
     expect(response.setHeader).toHaveBeenCalledWith('Content-Type', 'image/png');

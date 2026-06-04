@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuthStore } from "@/stores/auth/auth-store";
 
-import { apiGet, apiPatch, apiPost, apiPut } from "./client";
+import { apiClient, apiGet, apiPatch, apiPost, apiPut } from "./client";
 import type {
   AppModule,
   AuditLog,
@@ -20,18 +20,16 @@ import type {
   SystemMaintenanceAction,
   SystemMaintenanceResult,
   SystemSettings,
+  PublicBranding,
   UpdateSystemSettingsInput,
   User,
   CreateCaseInput,
   CreateCareSeekerInput,
   CreateOrganizationInput,
+  CreateUserInput,
   IncidentDetail,
   IncidentFilters,
   IncidentListItem,
-  IncidentSeverity,
-  IncidentSource,
-  IncidentStatus,
-  IncidentUrgency,
   UpdateIncidentInput,
 } from "./types";
 
@@ -56,6 +54,7 @@ export const queryKeys = {
   roles: ["roles"] as const,
   rolePermissions: (roleId: string) => ["roles", roleId, "permissions"] as const,
   systemSettings: ["system-settings"] as const,
+  publicBranding: ["public-branding"] as const,
   systemInfo: ["system-settings", "info"] as const,
 };
 
@@ -159,11 +158,16 @@ export function useIncidentQuery(id: string) {
   });
 }
 
-export function useIncidentEvidenceQuery(id: string) {
+export function useIncidentEvidenceQuery(id: string, evidenceAccessCode?: string, enabled = true) {
   return useQuery({
-    queryKey: queryKeys.incidentEvidence(id),
-    queryFn: () => apiGet<EvidenceListItem[]>(`${ADMIN_PREFIX}/incidents/${id}/evidence`),
-    enabled: Boolean(id),
+    queryKey: [...queryKeys.incidentEvidence(id), evidenceAccessCode ? "unlocked" : "default"] as const,
+    queryFn: async () => {
+      const response = await apiClient.get(`${ADMIN_PREFIX}/incidents/${id}/evidence`, {
+        headers: evidenceAccessCode ? { "x-evidence-access-code": evidenceAccessCode } : undefined,
+      });
+      return response.data.data as EvidenceListItem[];
+    },
+    enabled: Boolean(id) && enabled,
   });
 }
 
@@ -197,6 +201,17 @@ export function useCreateOrganizationMutation() {
 
 export function useUsersQuery() {
   return useQuery({ queryKey: queryKeys.users, queryFn: () => apiGet<User[]>(`${API_PREFIX}/users`) });
+}
+
+export function useCreateUserMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (body: CreateUserInput) => apiPost<User, CreateUserInput>(`${API_PREFIX}/users`, body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.users });
+    },
+  });
 }
 
 export function useCareSeekersQuery() {
@@ -275,15 +290,48 @@ export function useSystemSettingsQuery() {
   });
 }
 
+export function usePublicBrandingQuery() {
+  return useQuery({
+    queryKey: queryKeys.publicBranding,
+    queryFn: () => apiGet<PublicBranding>(`${API_PREFIX}/public/branding`),
+  });
+}
+
 export function useUpdateSystemSettingsMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (body: UpdateSystemSettingsInput) =>
       apiPut<SystemSettings, UpdateSystemSettingsInput>(`${API_PREFIX}/system-settings`, body),
-    onSuccess: () => {
+    onSuccess: (settings) => {
+      queryClient.setQueryData(queryKeys.publicBranding, settings.branding);
       queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
+      queryClient.invalidateQueries({ queryKey: queryKeys.publicBranding });
       queryClient.invalidateQueries({ queryKey: queryKeys.me });
+    },
+  });
+}
+
+export function useUploadBrandingLogoMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      const response = await apiClient.post(`${API_PREFIX}/system-settings/branding/logo`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data.data as { logoUrl: string; fileName: string; mimeType: string; size: number };
+    },
+    onSuccess: (result) => {
+      const currentBranding = queryClient.getQueryData<PublicBranding>(queryKeys.publicBranding);
+      queryClient.setQueryData(queryKeys.publicBranding, {
+        siteName: currentBranding?.siteName ?? "SakhiSafe",
+        logoUrl: result.logoUrl,
+      });
+      queryClient.invalidateQueries({ queryKey: queryKeys.systemSettings });
+      queryClient.invalidateQueries({ queryKey: queryKeys.publicBranding });
     },
   });
 }

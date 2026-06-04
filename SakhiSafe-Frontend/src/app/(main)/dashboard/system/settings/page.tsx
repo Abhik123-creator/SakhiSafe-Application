@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ImageIcon, Upload } from "lucide-react";
 import { toast } from "sonner";
 
 import { AccessDenied } from "@/components/dashboard/access-denied";
@@ -15,9 +16,11 @@ import {
   useSystemMaintenanceMutation,
   useSystemSettingsQuery,
   useUpdateSystemSettingsMutation,
+  useUploadBrandingLogoMutation,
 } from "@/lib/api/queries";
 import type { SystemMaintenanceAction, UpdateSystemSettingsInput } from "@/lib/api/types";
 import { ModuleRouteGuard } from "@/lib/auth/module-route-guard";
+import { resolveBrandingAssetUrl } from "@/lib/branding/branding";
 import { can } from "@/lib/permissions";
 import { useAuthStore } from "@/stores/auth/auth-store";
 
@@ -41,12 +44,19 @@ const maintenanceActions: Array<{ action: SystemMaintenanceAction; label: string
   { action: "BACKUP_DATABASE", label: "Request Database Backup" },
 ];
 
+function optionalText(value: string) {
+  const trimmed = value.trim();
+  return trimmed.length ? trimmed : undefined;
+}
+
 export default function SystemSettingsPage() {
   const user = useAuthStore((state) => state.user);
   const settingsQuery = useSystemSettingsQuery();
   const infoQuery = useSystemInfoQuery();
   const updateSettings = useUpdateSystemSettingsMutation();
+  const uploadBrandingLogo = useUploadBrandingLogoMutation();
   const maintenance = useSystemMaintenanceMutation();
+  const logoInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState<FormState | null>(null);
 
   useEffect(() => {
@@ -95,15 +105,15 @@ export default function SystemSettingsPage() {
     const currentForm = form;
     const payload: UpdateSystemSettingsInput = {
       branding: {
-        siteName: currentForm.siteName,
-        logoUrl: currentForm.logoUrl,
+        siteName: currentForm.siteName.trim(),
+        logoUrl: currentForm.logoUrl.trim(),
       },
       smtp: {
-        host: currentForm.smtpHost,
+        host: optionalText(currentForm.smtpHost),
         port: Number(currentForm.smtpPort),
-        fromEmail: currentForm.smtpFromEmail,
-        fromName: currentForm.smtpFromName,
-        username: currentForm.smtpUsername,
+        fromEmail: optionalText(currentForm.smtpFromEmail),
+        fromName: optionalText(currentForm.smtpFromName),
+        username: optionalText(currentForm.smtpUsername),
         useTls: currentForm.smtpUseTls,
         ...(currentForm.smtpPassword.trim() ? { password: currentForm.smtpPassword } : {}),
       },
@@ -122,9 +132,74 @@ export default function SystemSettingsPage() {
     });
   }
 
+  function saveBranding() {
+    if (!form) {
+      return;
+    }
+
+    updateSettings.mutate(
+      {
+        branding: {
+          siteName: form.siteName.trim(),
+          logoUrl: form.logoUrl.trim(),
+        },
+      },
+      {
+        onSuccess: () => toast.success("Branding updated"),
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  }
+
+  function saveSmtpSettings() {
+    if (!form) {
+      return;
+    }
+
+    updateSettings.mutate(
+      {
+        smtp: {
+          host: optionalText(form.smtpHost),
+          port: Number(form.smtpPort),
+          fromEmail: optionalText(form.smtpFromEmail),
+          fromName: optionalText(form.smtpFromName),
+          username: optionalText(form.smtpUsername),
+          useTls: form.smtpUseTls,
+          ...(form.smtpPassword.trim() ? { password: form.smtpPassword } : {}),
+        },
+      },
+      {
+        onSuccess: () => {
+          setField("smtpPassword", "");
+          toast.success("Email settings updated");
+        },
+        onError: (error) => toast.error(error.message),
+      },
+    );
+  }
+
   function requestMaintenance(action: SystemMaintenanceAction) {
     maintenance.mutate(action, {
       onSuccess: (result) => toast.success(result.message),
+      onError: (error) => toast.error(error.message),
+    });
+  }
+
+  function uploadLogo(file?: File) {
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Upload an image file for the logo");
+      return;
+    }
+
+    uploadBrandingLogo.mutate(file, {
+      onSuccess: (result) => {
+        setField("logoUrl", result.logoUrl);
+        toast.success("Branding image uploaded");
+      },
       onError: (error) => toast.error(error.message),
     });
   }
@@ -139,7 +214,19 @@ export default function SystemSettingsPage() {
             <CardTitle>Branding</CardTitle>
             <CardDescription>Controls app shell and authentication screen identity.</CardDescription>
           </CardHeader>
-          <CardContent className="grid gap-4 md:grid-cols-2">
+          <CardContent className="grid gap-4 md:grid-cols-[140px_1fr]">
+            <div className="flex min-h-32 items-center justify-center rounded-lg border bg-muted/30 p-3">
+              {form.logoUrl ? (
+                <img
+                  src={resolveBrandingAssetUrl(form.logoUrl)}
+                  alt={`${form.siteName} logo preview`}
+                  className="max-h-24 max-w-full object-contain"
+                />
+              ) : (
+                <ImageIcon className="size-8 text-muted-foreground" />
+              )}
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm">
               <span className="font-medium">Site Name</span>
               <Input disabled={!canUpdate} value={form.siteName} onChange={(event) => setField("siteName", event.target.value)} />
@@ -148,6 +235,41 @@ export default function SystemSettingsPage() {
               <span className="font-medium">Logo URL</span>
               <Input disabled={!canUpdate} value={form.logoUrl} onChange={(event) => setField("logoUrl", event.target.value)} />
             </label>
+              <label className="grid gap-2 text-sm md:col-span-2">
+                <span className="font-medium">Upload Logo / Tab Icon</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Input
+                    ref={logoInputRef}
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml,image/x-icon"
+                    className="hidden"
+                    disabled={!canUpdate || uploadBrandingLogo.isPending}
+                    type="file"
+                    onChange={(event) => {
+                      uploadLogo(event.target.files?.[0]);
+                      event.currentTarget.value = "";
+                    }}
+                  />
+                  <Button
+                    disabled={!canUpdate || uploadBrandingLogo.isPending}
+                    type="button"
+                    variant="outline"
+                    onClick={() => logoInputRef.current?.click()}
+                  >
+                    <Upload className="size-4" />
+                    {uploadBrandingLogo.isPending ? "Uploading..." : "Upload"}
+                  </Button>
+                  <span className="text-muted-foreground text-xs">PNG, JPEG, WebP, SVG, or ICO. Max 2MB.</span>
+                </div>
+                <span className="text-muted-foreground text-xs">
+                  This image is used as the dashboard logo, site identity, and browser tab icon.
+                </span>
+              </label>
+              <div className="flex justify-end md:col-span-2">
+                <Button disabled={!canUpdate || updateSettings.isPending} type="button" onClick={saveBranding}>
+                  {updateSettings.isPending ? "Saving..." : "Save Branding"}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -236,6 +358,11 @@ export default function SystemSettingsPage() {
                 <p className="text-muted-foreground text-xs">Enable encrypted SMTP transport.</p>
               </div>
               <Switch checked={form.smtpUseTls} disabled={!canUpdate} onCheckedChange={(checked) => setField("smtpUseTls", checked)} />
+            </div>
+            <div className="flex justify-end md:col-span-2">
+              <Button disabled={!canUpdate || updateSettings.isPending} type="button" variant="outline" onClick={saveSmtpSettings}>
+                {updateSettings.isPending ? "Saving..." : "Save Email Settings"}
+              </Button>
             </div>
           </CardContent>
         </Card>

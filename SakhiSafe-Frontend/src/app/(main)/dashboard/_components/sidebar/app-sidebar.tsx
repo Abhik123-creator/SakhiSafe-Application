@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { CircleHelp, ClipboardList, Command, Database, File, Search, Settings } from "lucide-react";
+import { CircleHelp, ClipboardList, Database, File, Search, Settings } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import {
@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { APP_CONFIG } from "@/config/app-config";
+import { BrandingLogo, BrandingName } from "@/components/branding/branding-logo";
 import { rootUser } from "@/data/users";
 import { can } from "@/lib/permissions";
 import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
@@ -95,8 +95,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link prefetch={false} href="/dashboard/default">
-                <Command />
-                <span className="font-semibold text-base">{APP_CONFIG.name}</span>
+                <span className="flex size-7 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-white">
+                  <BrandingLogo className="h-full w-full object-cover" />
+                </span>
+                <BrandingName className="truncate font-semibold text-base" />
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
