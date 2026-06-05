@@ -7,6 +7,7 @@ import {
   IncidentUrgency,
   Prisma,
 } from '@prisma/client';
+import { normalizePhone } from '../../common/utils/phone.util';
 import { AiUpsertIncidentDto } from '../dto/ai-upsert-incident.dto';
 import { EnsureDraftIncidentDto } from '../dto/ensure-draft-incident.dto';
 import { IncidentLlmOutputDto } from '../dto/incident-llm-output.dto';
@@ -44,7 +45,7 @@ export class IncidentsService {
     await this.ensureCareSeekerAndSession(dto.careSeekerId, dto.sessionId);
 
     const existing = await this.incidentsRepository.findOpenBySession(dto.sessionId);
-    const data = this.toIncidentData(dto, existing?.manuallyEdited ?? false);
+    const data = this.toIncidentData(dto, existing?.manuallyEdited ?? false, existing?.caseNote);
 
     if (existing) {
       this.logger.log(`Updating AI incident ${existing.id} for session ${dto.sessionId}`);
@@ -65,7 +66,49 @@ export class IncidentsService {
     if (!incident) {
       throw new NotFoundException();
     }
-    return incident;
+    return this.toIncidentDetail(incident);
+  }
+
+  async findActiveByCareSeekerPhone(phone: string) {
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      throw new BadRequestException('Phone number is required');
+    }
+
+    const incident = await this.incidentsRepository.findActiveByCareSeekerPhone(normalizedPhone);
+    if (!incident) {
+      throw new NotFoundException(`Active incident not found for phone ${normalizedPhone}`);
+    }
+
+    return this.toIncidentDetail(incident);
+  }
+
+  async findMissingFieldsByCareSeekerPhone(phone: string) {
+    const normalizedPhone = normalizePhone(phone);
+    if (!normalizedPhone) {
+      throw new BadRequestException('Phone number is required');
+    }
+
+    const incident = await this.incidentsRepository.findActiveByCareSeekerPhone(normalizedPhone);
+    if (!incident) {
+      throw new NotFoundException(`Active incident not found for phone ${normalizedPhone}`);
+    }
+
+    const missingFields = Array.isArray(incident.missingFields)
+      ? incident.missingFields.filter((field): field is string => typeof field === 'string')
+      : [];
+
+    return {
+      incidentId: incident.id,
+      careSeekerId: incident.careSeekerId,
+      sessionId: incident.sessionId,
+      phoneNumber:
+        incident.careSeeker.whatsappPhoneNumber ?? incident.careSeeker.phoneNumber ?? incident.careSeeker.phone ?? normalizedPhone,
+      status: incident.status,
+      title: incident.title,
+      missingFields,
+      updatedAt: incident.updatedAt,
+    };
   }
 
   async ensureDraftForSession(dto: EnsureDraftIncidentDto) {
@@ -124,6 +167,10 @@ export class IncidentsService {
       throw new NotFoundException();
     }
 
+    return this.toIncidentDetail(incident, options);
+  }
+
+  private toIncidentDetail(incident: NonNullable<Awaited<ReturnType<IncidentsRepository['findById']>>>, options: { includeEvidence?: boolean } = {}) {
     return {
       ...incident,
       careSeeker: incident.careSeeker
@@ -168,7 +215,11 @@ export class IncidentsService {
     }
   }
 
-  private toIncidentData(dto: AiUpsertIncidentDto, preserveManualFields: boolean): AiIncidentPayload {
+  private toIncidentData(
+    dto: AiUpsertIncidentDto,
+    preserveManualFields: boolean,
+    existingCaseNote?: string | null,
+  ): AiIncidentPayload {
     const output = dto.llmOutput;
     const severity = output.severity ?? 'UNKNOWN';
     const needsHumanReview = this.needsHumanReview(output);
@@ -196,8 +247,26 @@ export class IncidentsService {
       needsHumanReview,
       aiGenerated: true,
       aiConfidence: output.aiConfidence,
-      caseNote: output.caseNote,
+      caseNote: this.appendCaseNote(existingCaseNote, output.caseNote),
     };
+  }
+
+  private appendCaseNote(existingCaseNote?: string | null, incomingCaseNote?: string): string | undefined {
+    const incoming = incomingCaseNote?.trim();
+    if (!incoming) {
+      return undefined;
+    }
+
+    const existing = existingCaseNote?.trim();
+    if (!existing) {
+      return incoming;
+    }
+
+    if (existing.includes(incoming)) {
+      return existing;
+    }
+
+    return `${existing}\n\n${incoming}`;
   }
 
   private inferStatus(output: IncidentLlmOutputDto): IncidentStatus {

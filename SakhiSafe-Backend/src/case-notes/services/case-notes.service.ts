@@ -103,6 +103,12 @@ export class CaseNotesService {
     const existingNote = await this.caseNotesRepository.findNote(incident.id, caseRecord.id);
     const existingNoteText = existingNote?.noteText ?? caseRecord.notes ?? '';
     const hasTextDisclosure = Boolean(existingNoteText.trim());
+    const caseNote = await this.caseNotesRepository.createNote({
+      careSeeker: { connect: { id: careSeeker.id } },
+      incident: { connect: { id: incident.id } },
+      case: { connect: { id: caseRecord.id } },
+      noteText: this.formatImageObservation(analysis, aiConfidence),
+    });
     const finalConfidence = this.incidentConfidenceService.calculateFinalConfidence(analysis, hasTextDisclosure);
     await this.caseNotesRepository.updateIncidentConfidence(incident.id, finalConfidence);
     await this.caseNotesRepository.updateCaseConfidence(caseRecord.id, finalConfidence);
@@ -112,7 +118,7 @@ export class CaseNotesService {
     );
 
     return {
-      caseNoteId: existingNote?.id,
+      caseNoteId: caseNote.id,
       incidentId: incident.id,
       caseId: caseRecord.id,
       evidenceId: evidence.id,

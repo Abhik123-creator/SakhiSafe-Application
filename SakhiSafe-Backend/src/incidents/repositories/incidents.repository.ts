@@ -56,6 +56,22 @@ export class IncidentsRepository {
     });
   }
 
+  findActiveByCareSeekerPhone(phone: string) {
+    return this.prisma.incident.findFirst({
+      where: {
+        status: { in: ['DRAFT', 'OPEN', 'UNDER_REVIEW'] },
+        careSeeker: {
+          is: {
+            deletedAt: null,
+            OR: [{ phone }, { phone: `+${phone}` }, { phoneNumber: phone }, { whatsappPhoneNumber: phone }],
+          },
+        },
+      },
+      include: detailInclude,
+      orderBy: { updatedAt: 'desc' },
+    });
+  }
+
   create(data: Prisma.IncidentCreateInput) {
     return this.prisma.incident.create({ data, include: detailInclude });
   }

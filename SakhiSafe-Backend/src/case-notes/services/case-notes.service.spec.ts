@@ -71,6 +71,7 @@ describe('CaseNotesService', () => {
     repository.createImageMessage.mockResolvedValue({ id: 'message-id' });
     repository.touchSession.mockResolvedValue({ id: 'session-id' });
     repository.findNote.mockResolvedValue({ id: 'note-id', noteText: 'Existing note.' });
+    repository.createNote.mockResolvedValue({ id: 'new-note-id', noteText: 'AI Image Observation:' });
     repository.updateNote.mockResolvedValue({ id: 'note-id', noteText: 'Existing note.\n\nAI Image Observation:' });
   });
 
@@ -106,22 +107,30 @@ describe('CaseNotesService', () => {
     expect(repository.createDraftCase).not.toHaveBeenCalled();
   });
 
-  it('stores media observation without mutating existing case note text', async () => {
+  it('stores each media observation as a new case note without mutating previous notes', async () => {
     const result = await service.createImageAnalysis(dto, file);
 
-    expect(result.caseNoteId).toBe('note-id');
+    expect(result.caseNoteId).toBe('new-note-id');
     expect(result.mediaObservationSaved).toBe(true);
     expect(repository.updateNote).not.toHaveBeenCalled();
-    expect(repository.createNote).not.toHaveBeenCalled();
+    expect(repository.createNote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        noteText: expect.stringContaining('AI Image Observation:'),
+      }),
+    );
   });
 
-  it('does not create case notes when only a media observation is received', async () => {
+  it('creates a new case note when only a media observation is received', async () => {
     repository.findOpenCaseByCareSeeker.mockResolvedValue({ id: 'case-id', notes: 'Previous case note text.' });
     repository.findNote.mockResolvedValue(null);
 
     await service.createImageAnalysis(dto, file);
 
-    expect(repository.createNote).not.toHaveBeenCalled();
+    expect(repository.createNote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        noteText: expect.stringContaining('AI Image Observation:'),
+      }),
+    );
     expect(repository.updateNote).not.toHaveBeenCalled();
     expect(repository.updateCaseConfidence).toHaveBeenCalledWith('case-id', expect.any(Number));
   });
