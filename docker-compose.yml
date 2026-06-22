@@ -112,6 +112,7 @@ services:
       - ./SakhiSafe-Backend/SakhiSafe/ai-service/services:/app/services
       - ./SakhiSafe-Backend/SakhiSafe/ai-service/prompts:/app/prompts
       - media-uploads:/app/media
+      - ./secrets:/secrets:ro
     command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
     depends_on:
       postgres-ai:
