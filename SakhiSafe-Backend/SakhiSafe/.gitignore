@@ -1,0 +1,81 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+application_default_credentials.json
+**/application_default_credentials.json
+secrets/
+
+# Local databases and runtime state
+*.db
+*.sqlite
+*.sqlite3
+sakhi_ai.db
+postgres_data/
+
+# Logs
+*.log
+logs/
+
+# Uploads and generated media
+uploads/
+messaging-service/uploads/
+
+# Node / frontend artifacts, if added later
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Docker / local override files
+docker-compose.override.yml
+
+# IDE and OS files
+.vscode/
+.idea/
+.qodo/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Tool caches
+.uv/
+.cache/

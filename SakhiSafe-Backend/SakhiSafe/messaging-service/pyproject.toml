@@ -1,0 +1,21 @@
+[project]
+name = "messaging-service"
+version = "0.1.0"
+description = "A sleek, high-performance messaging adapter service managed with uv"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111.0",
+    "uvicorn[standard]>=0.29.0",
+    "httpx>=0.27.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.2.1",
+    "python-dotenv>=1.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "google-cloud-storage>=2.16.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

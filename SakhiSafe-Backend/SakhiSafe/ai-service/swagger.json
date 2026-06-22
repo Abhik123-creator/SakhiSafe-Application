@@ -1,0 +1,1235 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/internal/v1/auth/token": {
+      "post": {
+        "operationId": "InternalAuthController_createToken",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ServiceTokenRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceTokenResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Generate service JWT token",
+        "tags": [
+          "Internal Auth"
+        ]
+      }
+    },
+    "/internal/v1/care-seekers": {
+      "get": {
+        "operationId": "InternalCareSeekersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "List care seekers for service clients",
+        "tags": [
+          "Internal Care Seekers"
+        ]
+      },
+      "post": {
+        "operationId": "InternalCareSeekersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCareSeekerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Create care seeker from service clients",
+        "tags": [
+          "Internal Care Seekers"
+        ]
+      }
+    },
+    "/internal/v1/care-seekers/by-phone/{phone}": {
+      "get": {
+        "operationId": "InternalCareSeekersController_findByPhone",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "917003801171",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get care seeker by phone number for service clients",
+        "tags": [
+          "Internal Care Seekers"
+        ]
+      }
+    },
+    "/internal/v1/care-seekers/{id}": {
+      "get": {
+        "operationId": "InternalCareSeekersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get care seeker by ID for service clients",
+        "tags": [
+          "Internal Care Seekers"
+        ]
+      },
+      "patch": {
+        "operationId": "InternalCareSeekersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCareSeekerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Update care seeker from service clients",
+        "tags": [
+          "Internal Care Seekers"
+        ]
+      }
+    },
+    "/internal/v1/care-seekers/get-or-create": {
+      "post": {
+        "operationId": "InternalCareSeekersController_getOrCreate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetOrCreateCareSeekerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get or create care seeker from service clients",
+        "tags": [
+          "Internal Care Seekers"
+        ]
+      }
+    },
+    "/internal/v1/cases": {
+      "get": {
+        "operationId": "InternalCasesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "List cases for service clients",
+        "tags": [
+          "Internal Cases"
+        ]
+      },
+      "post": {
+        "operationId": "InternalCasesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Create case from service clients",
+        "tags": [
+          "Internal Cases"
+        ]
+      }
+    },
+    "/internal/v1/cases/by-phone/{phone}": {
+      "get": {
+        "operationId": "InternalCasesController_findByPhone",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "917003801171",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "List cases by care seeker phone number for service clients",
+        "tags": [
+          "Internal Cases"
+        ]
+      }
+    },
+    "/internal/v1/cases/{id}": {
+      "get": {
+        "operationId": "InternalCasesController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get case by ID for service clients",
+        "tags": [
+          "Internal Cases"
+        ]
+      },
+      "patch": {
+        "operationId": "InternalCasesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCaseDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Update case from service clients",
+        "tags": [
+          "Internal Cases"
+        ]
+      }
+    },
+    "/internal/v1/case-notes/image-analysis": {
+      "post": {
+        "operationId": "InternalCaseNotesController_createImageAnalysis",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "file",
+                  "careSeekerPhone",
+                  "aiAnalysisJson",
+                  "aiConfidence",
+                  "aiSummary"
+                ],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "careSeekerPhone": {
+                    "type": "string"
+                  },
+                  "caseId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "incidentId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "whatsappMessageId": {
+                    "type": "string"
+                  },
+                  "whatsappMediaId": {
+                    "type": "string"
+                  },
+                  "source": {
+                    "type": "string",
+                    "default": "whatsapp"
+                  },
+                  "aiAnalysisJson": {
+                    "type": "string"
+                  },
+                  "aiConfidence": {
+                    "type": "number"
+                  },
+                  "aiSummary": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "survivorFriendlySummary": {
+                    "type": "string"
+                  },
+                  "caption": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Store image evidence and AI media observation",
+        "tags": [
+          "Internal Case Notes"
+        ]
+      }
+    },
+    "/internal/v1/conversation-sessions/get-or-create-active": {
+      "post": {
+        "operationId": "InternalConversationSessionsController_getOrCreateActive",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetOrCreateActiveSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get or create active conversation session",
+        "tags": [
+          "Internal Conversation Sessions"
+        ]
+      }
+    },
+    "/internal/v1/conversation-messages": {
+      "post": {
+        "operationId": "InternalConversationMessagesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateConversationMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Store a conversation message",
+        "tags": [
+          "Internal Conversation Messages"
+        ]
+      }
+    },
+    "/internal/v1/incidents/missing-fields/by-phone/{phone}": {
+      "get": {
+        "operationId": "InternalIncidentsController_missingFieldsByPhone",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "917003801171",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IncidentMissingFieldsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get missing fields for the latest active incident by care seeker phone",
+        "tags": [
+          "Internal Incidents"
+        ]
+      }
+    },
+    "/internal/v1/incidents/active-by-phone/{phone}": {
+      "get": {
+        "operationId": "InternalIncidentsController_activeByPhone",
+        "parameters": [
+          {
+            "name": "phone",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "example": "917003801171",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get latest active incident by care seeker phone",
+        "tags": [
+          "Internal Incidents"
+        ]
+      }
+    },
+    "/internal/v1/incidents/ai-upsert": {
+      "post": {
+        "operationId": "InternalIncidentsController_aiUpsert",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiUpsertIncidentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Create or update the AI incident for a conversation session",
+        "tags": [
+          "Internal Incidents"
+        ]
+      }
+    },
+    "/internal/v1/incidents/active-by-session/{sessionId}": {
+      "get": {
+        "operationId": "InternalIncidentsController_activeBySession",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Get active incident for a conversation session",
+        "tags": [
+          "Internal Incidents"
+        ]
+      }
+    },
+    "/internal/v1/incidents/ensure-draft-for-session": {
+      "post": {
+        "operationId": "InternalIncidentsController_ensureDraftForSession",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnsureDraftIncidentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Ensure a draft incident exists for image evidence",
+        "tags": [
+          "Internal Incidents"
+        ]
+      }
+    },
+    "/internal/v1/evidence/upload-image": {
+      "post": {
+        "operationId": "InternalEvidenceController_uploadImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "careSeekerId",
+                  "sessionId",
+                  "incidentId",
+                  "source",
+                  "uploadedBy",
+                  "file"
+                ],
+                "properties": {
+                  "careSeekerId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "sessionId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "incidentId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "source": {
+                    "type": "string",
+                    "enum": [
+                      "WHATSAPP",
+                      "WEB",
+                      "ADMIN"
+                    ]
+                  },
+                  "uploadedBy": {
+                    "type": "string",
+                    "enum": [
+                      "CARE_SEEKER",
+                      "ADMIN",
+                      "AI_SERVICE"
+                    ]
+                  },
+                  "caption": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "summary": "Upload private image evidence metadata and file",
+        "tags": [
+          "Internal Evidence"
+        ]
+      }
+    },
+    "/internal/v1/health": {
+      "get": {
+        "operationId": "InternalHealthController_check",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "service-jwt": []
+          }
+        ],
+        "tags": [
+          "Internal Health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "SakhiSafe Internal Service API",
+    "description": "Internal APIs used by Python AI service and backend service accounts.",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "service-jwt": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "ServiceTokenRequestDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "example": "sakhi-ai-service"
+          },
+          "clientSecret": {
+            "type": "string",
+            "example": "sakhi_ai_dev_client_secret_9d7b8c6a4f2e1a0c5b3d6e8f1a2c9d0e"
+          }
+        },
+        "required": [
+          "clientId",
+          "clientSecret"
+        ]
+      },
+      "ServiceTokenResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "tokenType": {
+            "type": "string",
+            "example": "Bearer"
+          },
+          "expiresIn": {
+            "type": "number",
+            "example": 900
+          }
+        },
+        "required": [
+          "accessToken",
+          "tokenType",
+          "expiresIn"
+        ]
+      },
+      "CreateCareSeekerDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "safetyNotes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "fullName"
+        ]
+      },
+      "GetOrCreateCareSeekerDto": {
+        "type": "object",
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "example": "+919999999999"
+          },
+          "whatsappPhoneNumber": {
+            "type": "string",
+            "example": "+919999999999"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "WhatsApp Care Seeker"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "WHATSAPP",
+              "WEB",
+              "ADMIN"
+            ]
+          }
+        }
+      },
+      "UpdateCareSeekerDto": {
+        "type": "object",
+        "properties": {
+          "fullName": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "address": {
+            "type": "string"
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          },
+          "safetyNotes": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateCaseDto": {
+        "type": "object",
+        "properties": {
+          "careSeekerId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "assignedToId": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "incidentDescription": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "IN_PROGRESS",
+              "ESCALATED",
+              "RESOLVED",
+              "CLOSED"
+            ]
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          }
+        },
+        "required": [
+          "careSeekerId",
+          "title"
+        ]
+      },
+      "UpdateCaseDto": {
+        "type": "object",
+        "properties": {
+          "careSeekerId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "organizationId": {
+            "type": "string"
+          },
+          "assignedToId": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "incidentDescription": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "IN_PROGRESS",
+              "ESCALATED",
+              "RESOLVED",
+              "CLOSED"
+            ]
+          },
+          "riskLevel": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          }
+        }
+      },
+      "GetOrCreateActiveSessionDto": {
+        "type": "object",
+        "properties": {
+          "careSeekerId": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "WHATSAPP",
+              "WEB"
+            ]
+          }
+        },
+        "required": [
+          "careSeekerId",
+          "channel"
+        ]
+      },
+      "CreateConversationMessageDto": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "INBOUND",
+              "OUTBOUND"
+            ]
+          },
+          "messageType": {
+            "type": "string",
+            "enum": [
+              "TEXT",
+              "IMAGE"
+            ]
+          },
+          "messageText": {
+            "type": "string"
+          },
+          "mediaId": {
+            "type": "string"
+          },
+          "evidenceId": {
+            "type": "string"
+          },
+          "rawPayload": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "sessionId",
+          "direction",
+          "messageType",
+          "messageText"
+        ]
+      },
+      "IncidentMissingFieldsResponseDto": {
+        "type": "object",
+        "properties": {
+          "incidentId": {
+            "type": "string",
+            "example": "a5e4d65c-8b51-4f6b-a6fd-5c3f27f1c7a9"
+          },
+          "careSeekerId": {
+            "type": "string",
+            "example": "89a0da54-9170-464d-bda8-bc805271d57a"
+          },
+          "sessionId": {
+            "type": "object",
+            "example": "71a96d84-6fc8-4386-9a99-38b5ee1d7953",
+            "nullable": true
+          },
+          "phoneNumber": {
+            "type": "string",
+            "example": "919999999999"
+          },
+          "status": {
+            "type": "string",
+            "example": "OPEN"
+          },
+          "title": {
+            "type": "string",
+            "example": "Reported domestic violence concern"
+          },
+          "missingFields": {
+            "example": [
+              "Current safety status",
+              "Location details"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2026-06-05T03:30:00.000Z"
+          }
+        },
+        "required": [
+          "incidentId",
+          "careSeekerId",
+          "phoneNumber",
+          "status",
+          "title",
+          "missingFields",
+          "updatedAt"
+        ]
+      },
+      "IncidentLlmOutputDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "DOMESTIC_VIOLENCE",
+              "PHYSICAL_ABUSE",
+              "EMOTIONAL_ABUSE",
+              "SEXUAL_ABUSE",
+              "FINANCIAL_ABUSE",
+              "STALKING",
+              "HARASSMENT",
+              "THREAT",
+              "OTHER",
+              "UNKNOWN"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL",
+              "UNKNOWN"
+            ]
+          },
+          "urgency": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "SOON",
+              "URGENT",
+              "IMMEDIATE",
+              "UNKNOWN"
+            ]
+          },
+          "incidentDateText": {
+            "type": "string"
+          },
+          "locationText": {
+            "type": "string"
+          },
+          "perpetratorRelation": {
+            "type": "string"
+          },
+          "riskSignals": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "missingFields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "needsHumanReview": {
+            "type": "boolean"
+          },
+          "aiConfidence": {
+            "type": "number"
+          },
+          "caseNote": {
+            "type": "string"
+          }
+        }
+      },
+      "AiUpsertIncidentDto": {
+        "type": "object",
+        "properties": {
+          "careSeekerId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "WHATSAPP",
+              "WEB",
+              "ADMIN"
+            ]
+          },
+          "llmOutput": {
+            "$ref": "#/components/schemas/IncidentLlmOutputDto"
+          }
+        },
+        "required": [
+          "careSeekerId",
+          "sessionId",
+          "source",
+          "llmOutput"
+        ]
+      },
+      "EnsureDraftIncidentDto": {
+        "type": "object",
+        "properties": {
+          "careSeekerId": {
+            "type": "string"
+          },
+          "sessionId": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "WHATSAPP",
+              "WEB",
+              "ADMIN"
+            ]
+          }
+        },
+        "required": [
+          "careSeekerId",
+          "sessionId",
+          "source"
+        ]
+      }
+    }
+  }
+}

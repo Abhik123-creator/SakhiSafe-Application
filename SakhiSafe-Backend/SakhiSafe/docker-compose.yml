@@ -1,0 +1,108 @@
+services:
+  # ==============================================================
+  # Postgres Database Service
+  # ==============================================================
+  postgres:
+    image: postgres:16
+    container_name: sakhi-postgres
+    environment:
+      POSTGRES_USER: sakhi_user
+      POSTGRES_PASSWORD: sakhi_password
+      POSTGRES_DB: sakhi_safe
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sakhi_user -d sakhi_safe"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - sakhisafe-network
+
+  # ==============================================================
+  # AI Service
+  # ==============================================================
+  ai-service:
+    build:
+      context: ./ai-service
+      dockerfile: Dockerfile
+    container_name: air-services
+    ports:
+      - "8080:8080"
+    env_file:
+      - path: ./ai-service/.env
+        required: false
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+      DATABASE_URL: postgresql+asyncpg://sakhi_user:sakhi_password@postgres:5432/sakhi_safe
+      NEST_INTERNAL_BASE_URL: http://host.docker.internal:4000
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/application_default_credentials.json
+    volumes:
+      - ./ai-service/main.py:/app/main.py
+      - ./ai-service/app:/app/app
+      - ./ai-service/services:/app/services
+      - ./ai-service/prompts:/app/prompts
+      - ${APPDATA}/gcloud/application_default_credentials.json:/secrets/application_default_credentials.json:ro
+      - media-uploads:/app/media
+    command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8080/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - sakhisafe-network
+
+  # ==============================================================
+  # Messaging Service (WhatsApp API Adapter)
+  # ==============================================================
+  messaging-service:
+    build:
+      context: ./messaging-service
+      dockerfile: Dockerfile
+    container_name: messaging-services
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: ./messaging-service/.env
+        required: false
+    environment:
+      TARGET_URL: http://ai-service:8080/messaging
+    volumes:
+      - ./messaging-service/app:/app/app
+      - media-uploads:/app/uploads
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
+    depends_on:
+      ai-service:
+        condition: service_healthy
+    networks:
+      - sakhisafe-network
+
+# ==============================================================
+# Declared Persistent Volumes
+# ==============================================================
+networks:
+  sakhisafe-network:
+    driver: bridge
+
+volumes:
+  # Dedicated volume managing the lifetime and persistence of downloads
+  media-uploads:
+  # Dedicated volume managing the lifetime and persistence of Postgres data
+  postgres_data:

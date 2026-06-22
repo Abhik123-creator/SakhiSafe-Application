@@ -1,0 +1,26 @@
+services:
+  whatsapp-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: messaging-service
+    ports:
+      - "8000:8000"
+    # Read environment variables directly from the unified .env file
+    env_file:
+      - .env
+    volumes:
+      # Mount local app directory for instantaneous hot-reloading during development
+      - ./app:/app/app
+      # Mount uploads directory to persist media files downloaded locally
+      - ./uploads:/app/uploads
+    # Run Uvicorn in reload mode for seamless development
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    # Native Python check verifying the health route
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    restart: unless-stopped
