@@ -18,4 +18,4 @@ RUN npm run build
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm run seed && node dist/src/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run seed && node dist/src/main"]
