@@ -105,12 +105,14 @@ services:
       PORT: 8080
       DATABASE_URL: postgresql+asyncpg://sakhi_user:sakhi_password@postgres-ai:5432/sakhi_safe
       NEST_INTERNAL_BASE_URL: http://backend:4000
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/application_default_credentials.json
     volumes:
       - ./SakhiSafe-Backend/SakhiSafe/ai-service/main.py:/app/main.py
       - ./SakhiSafe-Backend/SakhiSafe/ai-service/app:/app/app
       - ./SakhiSafe-Backend/SakhiSafe/ai-service/services:/app/services
       - ./SakhiSafe-Backend/SakhiSafe/ai-service/prompts:/app/prompts
       - media-uploads:/app/media
+      - ./secrets:/secrets:ro
     command: uvicorn main:app --host 0.0.0.0 --port 8080 --reload
     depends_on:
       postgres-ai:
