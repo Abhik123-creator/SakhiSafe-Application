@@ -20,7 +20,12 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
 
   app.use(new RequestIdMiddleware().use);
-  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
+  app.use(
+    helmet({
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: process.env.ENABLE_SWAGGER === 'true' ? false : undefined,
+    })
+  );
   app.use(compression());
   app.use(cookieParser());
   app.use('/uploads/branding', express.static(resolve(process.cwd(), 'private', 'uploads', 'branding')));
