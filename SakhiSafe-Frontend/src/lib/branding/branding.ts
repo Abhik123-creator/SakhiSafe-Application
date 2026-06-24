@@ -10,7 +10,7 @@ export const FALLBACK_BRANDING: PublicBranding = {
 
 export function resolveBrandingAssetUrl(url?: string | null): string {
   if (!url) {
-    return FALLBACK_BRANDING.logoUrl ?? "/logo.jpeg";
+    return FALLBACK_BRANDING.logoUrl ?? "/LOGO.jpeg";
   }
 
   if (/^(data:|https?:\/\/|blob:)/i.test(url)) {

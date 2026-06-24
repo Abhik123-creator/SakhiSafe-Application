@@ -3,15 +3,16 @@
 import { type ReactNode, useEffect } from "react";
 
 import { useBranding } from "@/lib/branding/use-branding";
+import { APP_CONFIG } from "@/config/app-config";
 
 export function BrandingProvider({ children }: Readonly<{ children: ReactNode }>) {
   const branding = useBranding();
 
   useEffect(() => {
     document.title = branding.siteName;
-    setIconLink("icon", branding.logoUrl);
-    setIconLink("apple-touch-icon", branding.logoUrl);
-  }, [branding.siteName, branding.logoUrl]);
+    setIconLink("icon", APP_CONFIG.branding.faviconPath);
+    setIconLink("apple-touch-icon", APP_CONFIG.branding.faviconPath);
+  }, [branding.siteName]);
 
   return children;
 }

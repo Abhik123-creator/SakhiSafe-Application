@@ -18,8 +18,8 @@ export const metadata: Metadata = {
   title: APP_CONFIG.meta.title,
   description: APP_CONFIG.meta.description,
   icons: {
-    icon: APP_CONFIG.branding.logoPath,
-    apple: APP_CONFIG.branding.logoPath,
+    icon: APP_CONFIG.branding.faviconPath,
+    apple: APP_CONFIG.branding.faviconPath,
   },
   openGraph: {
     title: APP_CONFIG.meta.title,
