@@ -7,7 +7,7 @@ export const APP_CONFIG = {
   version: packageJson.version,
   copyright: `© ${currentYear}, SakhiSafe.`,
   branding: {
-    logoPath: "/LOGO.jpeg",
+    logoPath: "/logo.jpeg",
     faviconPath: "/Favicon.jpeg",
     logoAlt: "SakhiSafe logo",
   },
