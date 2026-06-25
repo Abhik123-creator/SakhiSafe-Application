@@ -95,6 +95,73 @@
   }
 }
 
+/* ── Login page blob orbs ── */
+.sakhi-blob-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sakhi-blob-bg::before,
+.sakhi-blob-bg::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+}
+
+/* Large peach/orange blob — bottom-left */
+.sakhi-blob-bg::before {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(255, 200, 150, 0.85), rgba(255, 170, 100, 0.4));
+  bottom: -120px;
+  left: -100px;
+  animation: sakhi-blob-drift-a 14s ease-in-out infinite alternate;
+}
+
+/* Large purple blob — top-right */
+.sakhi-blob-bg::after {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, rgba(190, 160, 240, 0.8), rgba(160, 110, 230, 0.35));
+  top: -80px;
+  right: -80px;
+  animation: sakhi-blob-drift-b 18s ease-in-out infinite alternate;
+}
+
+/* Extra small purple blob — bottom-right */
+.sakhi-blob-extra {
+  position: absolute;
+  pointer-events: none;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  background: radial-gradient(circle, rgba(200, 170, 250, 0.9), rgba(170, 120, 240, 0.3));
+  bottom: -60px;
+  right: -40px;
+  animation: sakhi-blob-drift-c 20s ease-in-out infinite alternate;
+}
+
+@keyframes sakhi-blob-drift-a {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(40px, -50px) scale(1.1); }
+}
+
+@keyframes sakhi-blob-drift-b {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-50px, 40px) scale(1.08); }
+}
+
+@keyframes sakhi-blob-drift-c {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-30px, -40px) scale(1.12); }
+}
+
 /* Default theme styles (used when no data-theme-preset is set or when 'default' is selected).
 These serve as the fallback; there is no separate default.css file. */
 :root {

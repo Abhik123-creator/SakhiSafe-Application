@@ -9,11 +9,60 @@ import { GoogleButton } from "../../_components/social-auth/google-button";
 
 export default function LoginV1() {
   return (
-    <main className="relative h-dvh overflow-hidden bg-[#fff8f1] text-[#1d163d]">
-      <div className="sakhi-heavenly-rays absolute inset-0" />
-      <div className="sakhi-heavenly-shimmer absolute inset-0" />
+    <main className="relative h-dvh overflow-hidden bg-white text-[#1d163d]">
+      {/* Blob: peach / orange — bottom-left */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          width: 600,
+          height: 600,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(255,195,130,0.75) 0%, rgba(255,160,80,0.35) 60%, transparent 100%)",
+          filter: "blur(80px)",
+          bottom: -160,
+          left: -140,
+          animation: "sakhi-blob-drift-a 14s ease-in-out infinite alternate",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {/* Blob: purple — top-right */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          width: 560,
+          height: 560,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(190,155,245,0.72) 0%, rgba(155,105,235,0.3) 60%, transparent 100%)",
+          filter: "blur(80px)",
+          top: -140,
+          right: -120,
+          animation: "sakhi-blob-drift-b 18s ease-in-out infinite alternate",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      {/* Blob: purple — bottom-right */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          width: 360,
+          height: 360,
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(205,175,255,0.65) 0%, rgba(165,120,245,0.25) 65%, transparent 100%)",
+          filter: "blur(70px)",
+          bottom: -80,
+          right: -60,
+          animation: "sakhi-blob-drift-c 20s ease-in-out infinite alternate",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
       <div className="relative z-10 grid h-dvh overflow-hidden lg:grid-cols-[1.08fr_0.92fr]">
-        <section className="relative hidden h-dvh items-center justify-center overflow-hidden bg-[#fbf0e8]/88 px-6 py-6 sm:px-10 lg:flex lg:px-14">
+        <section className="relative hidden h-dvh items-center justify-center overflow-hidden px-6 py-6 sm:px-10 lg:flex lg:px-14">
           <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
             <div className="w-full max-w-[26rem]">
               <BrandingLogo className="h-auto max-h-52 w-full object-contain sm:max-h-60" />
