@@ -34,6 +34,7 @@ COPY --from=builder /app/next.config.mjs ./
 COPY --from=builder /app/postcss.config.mjs ./
 COPY --from=builder /app/tsconfig.json ./
 COPY --from=builder /app/components.json ./
+COPY --from=builder /app/public ./public
 
 EXPOSE 3000
 
