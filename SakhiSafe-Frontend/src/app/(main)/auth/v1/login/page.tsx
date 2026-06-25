@@ -7,14 +7,20 @@ import { BrandingLogo, BrandingName } from "@/components/branding/branding-logo"
 import { LoginForm } from "../../_components/login-form";
 import { GoogleButton } from "../../_components/social-auth/google-button";
 
+const FEATURES = [
+  { icon: HeartHandshake, label: "Support", sub: "You're never alone" },
+  { icon: Sparkles, label: "Empower", sub: "Build your strength" },
+  { icon: LockKeyhole, label: "Protect", sub: "Your data is secure" },
+];
+
 export default function LoginV1() {
   return (
-    <main className="relative h-dvh overflow-hidden bg-white text-[#1d163d]">
+    <main className="relative min-h-dvh bg-white text-[#1d163d]">
       {/* Blob: peach / orange — bottom-left */}
       <div
         aria-hidden
         style={{
-          position: "absolute",
+          position: "fixed",
           width: 600,
           height: 600,
           borderRadius: "50%",
@@ -31,7 +37,7 @@ export default function LoginV1() {
       <div
         aria-hidden
         style={{
-          position: "absolute",
+          position: "fixed",
           width: 560,
           height: 560,
           borderRadius: "50%",
@@ -48,7 +54,7 @@ export default function LoginV1() {
       <div
         aria-hidden
         style={{
-          position: "absolute",
+          position: "fixed",
           width: 360,
           height: 360,
           borderRadius: "50%",
@@ -61,65 +67,106 @@ export default function LoginV1() {
           zIndex: 0,
         }}
       />
-      <div className="relative z-10 grid h-dvh overflow-hidden lg:grid-cols-[1.08fr_0.92fr]">
+
+      <div className="relative z-10 lg:grid lg:h-dvh lg:grid-cols-[1.08fr_0.92fr] lg:overflow-hidden">
+
+        {/* ── LEFT PANEL (desktop only) ── */}
         <section className="relative hidden h-dvh items-center justify-center overflow-hidden px-6 py-6 sm:px-10 lg:flex lg:px-14">
           <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
             <div className="w-full max-w-[26rem]">
               <BrandingLogo className="h-auto max-h-52 w-full object-contain sm:max-h-60" />
             </div>
-
             <div className="mt-5 max-w-2xl space-y-2">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#b29153]/35 bg-white/65 px-3 py-1.5 font-medium text-[#2b1853] text-xs shadow-sm">
                 <ShieldCheck className="size-3.5 text-[#007f8e]" />
                 Safe at home. Strong in life.
               </div>
               <h1 className="font-semibold text-3xl leading-tight sm:text-4xl">
-                A secure workspace for care, response, and dignity.
+                A secure workspace for care, response, and{" "}
+                <span className="text-[#b29153]">dignity.</span>
               </h1>
               <p className="mx-auto max-w-xl text-[#4e4666] text-sm leading-6">
                 Access protected case coordination, survivor support records, and trusted operational tools from one calm, private place.
               </p>
             </div>
-
             <div className="mt-5 grid w-full max-w-2xl gap-2 sm:grid-cols-3">
-              {[
-                { icon: HeartHandshake, label: "Support" },
-                { icon: Sparkles, label: "Empower" },
-                { icon: LockKeyhole, label: "Protect" },
-              ].map((item) => (
+              {FEATURES.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center justify-center gap-2 rounded-xl border border-white/70 bg-white/60 px-4 py-3 font-medium text-[#2b1853] text-sm shadow-sm backdrop-blur"
+                  className="flex flex-col items-center gap-2 rounded-xl border border-white/70 bg-white/60 px-4 py-4 text-center shadow-sm backdrop-blur"
                 >
-                  <item.icon className="size-4 text-[#b29153]" />
-                  {item.label}
+                  <div className="flex size-9 items-center justify-center rounded-full bg-[#2b1853]/10">
+                    <item.icon className="size-4 text-[#2b1853]" />
+                  </div>
+                  <p className="font-semibold text-[#2b1853] text-sm">{item.label}</p>
+                  <p className="text-[#6b5f80] text-xs">{item.sub}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="flex h-dvh items-center justify-center overflow-hidden px-5 py-4 sm:px-8 lg:px-12">
-          <div className="w-full max-w-[29rem]">
-            <div className="mb-8 lg:hidden">
-              <BrandingLogo className="mx-auto h-auto max-h-48 w-full max-w-xs object-contain" />
+        {/* ── RIGHT PANEL / FULL MOBILE ── */}
+        <section className="flex min-h-dvh flex-col items-center justify-start overflow-y-auto px-5 py-8 sm:px-8 lg:h-dvh lg:justify-center lg:px-12">
+          <div className="w-full max-w-[26rem]">
+
+            {/* Mobile-only: logo + hero content */}
+            <div className="mb-6 lg:hidden">
+              {/* Logo card */}
+              <div className="mb-5 flex items-center justify-center rounded-2xl border border-white/80 bg-white/80 p-5 shadow-lg backdrop-blur">
+                <BrandingLogo className="h-auto max-h-44 w-full object-contain" />
+              </div>
+
+              {/* Badge */}
+              <div className="mb-3 flex justify-center">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-[#b29153]/35 bg-white/70 px-3 py-1.5 font-medium text-[#2b1853] text-xs shadow-sm backdrop-blur">
+                  <ShieldCheck className="size-3.5 text-[#007f8e]" />
+                  Safe at home. Strong in life.
+                </div>
+              </div>
+
+              {/* Heading */}
+              <h1 className="mb-2 text-center font-bold text-2xl leading-tight text-[#1d163d]">
+                A secure workspace for care, response, and{" "}
+                <span className="text-[#b29153]">dignity.</span>
+              </h1>
+              <p className="mb-5 text-center text-[#5a4f72] text-sm leading-6">
+                Access protected case coordination, survivor support records, and trusted operational tools from one calm, private place.
+              </p>
+
+              {/* Feature cards — 3 col grid on mobile */}
+              <div className="mb-6 grid grid-cols-3 gap-2">
+                {FEATURES.map((item) => (
+                  <div
+                    key={item.label}
+                    className="flex flex-col items-center gap-1.5 rounded-xl border border-white/70 bg-white/70 px-2 py-4 text-center shadow-sm backdrop-blur"
+                  >
+                    <div className="flex size-9 items-center justify-center rounded-full bg-[#2b1853]/10">
+                      <item.icon className="size-4 text-[#2b1853]" />
+                    </div>
+                    <p className="font-semibold text-[#1d163d] text-xs">{item.label}</p>
+                    <p className="text-[10px] leading-tight text-[#6b5f80]">{item.sub}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
+            {/* Login form card */}
             <div className="rounded-2xl border border-[#ead9c6] bg-white/90 p-6 shadow-[0_24px_70px_rgba(42,24,83,0.14)] backdrop-blur sm:p-8">
-              <div className="mb-8 space-y-3">
-                <div className="flex size-12 items-center justify-center rounded-xl bg-[#2b1853] text-white shadow-lg shadow-[#2b1853]/20">
-                  <ShieldCheck className="size-6" />
+              <div className="mb-6 space-y-3">
+                <div className="flex size-11 items-center justify-center rounded-xl bg-[#2b1853] text-white shadow-lg shadow-[#2b1853]/20">
+                  <ShieldCheck className="size-5" />
                 </div>
-                <div className="space-y-2">
-                  <p className="font-medium text-[#b29153] text-sm uppercase tracking-[0.18em]">Authorized access</p>
-                  <h2 className="font-semibold text-3xl text-[#1d163d]">Welcome back</h2>
+                <div className="space-y-1">
+                  <p className="font-medium text-[#b29153] text-xs uppercase tracking-[0.18em]">Authorized access</p>
+                  <h2 className="font-bold text-2xl text-[#1d163d]">Welcome back</h2>
                   <p className="text-[#635b73] text-sm leading-6">
                     Sign in to continue managing <BrandingName /> response operations.
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <LoginForm />
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
@@ -132,14 +179,14 @@ export default function LoginV1() {
                 <GoogleButton className="h-11 w-full border-[#d8c4aa] bg-white text-[#2b1853] hover:bg-[#fff8f1]" variant="outline" />
                 <p className="text-center text-[#756b83] text-xs">
                   Don&apos;t have an account?{" "}
-                  <Link prefetch={false} href="register" className="font-medium text-[#007f8e] hover:text-[#2b1853]">
+                  <Link prefetch={false} href="register" className="font-semibold text-[#2b1853] hover:text-[#007f8e]">
                     Register
                   </Link>
                 </p>
               </div>
             </div>
 
-            <p className="mt-6 text-center text-[#8a7d93] text-xs">
+            <p className="mt-5 text-center text-[#8a7d93] text-xs">
               Safety · Dignity · Respect · Justice
             </p>
           </div>
