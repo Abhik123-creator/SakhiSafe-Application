@@ -14,30 +14,25 @@ export default function LoginV1() {
       <div className="sakhi-heavenly-shimmer absolute inset-0" />
       <div className="relative z-10 grid h-dvh overflow-hidden lg:grid-cols-[1.08fr_0.92fr]">
         <section className="relative hidden h-dvh items-center justify-center overflow-hidden bg-[#fbf0e8]/88 px-6 py-6 sm:px-10 lg:flex lg:px-14">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(0,128,145,0.16),transparent_28%),radial-gradient(circle_at_80%_8%,rgba(178,145,83,0.22),transparent_24%),linear-gradient(135deg,rgba(42,24,83,0.1),transparent_48%)]" />
-          <div className="absolute left-8 top-8 hidden h-24 w-24 rounded-full border border-[#2b1853]/15 lg:block" />
-          <div className="absolute bottom-10 right-10 hidden h-32 w-32 rounded-full border border-[#b29153]/30 lg:block" />
-
-          <div className="relative z-10 flex w-full max-w-3xl flex-col items-center text-center">
-            <div className="relative w-full max-w-[36rem]">
-              <div className="absolute -inset-5 rounded-[2rem] bg-white/45 blur-2xl" />
-              <BrandingLogo className="relative h-auto w-full rounded-2xl border border-white/70 shadow-[0_30px_90px_rgba(42,24,83,0.2)]" />
+          <div className="relative z-10 flex w-full max-w-2xl flex-col items-center text-center">
+            <div className="w-full max-w-[26rem]">
+              <BrandingLogo className="h-auto max-h-52 w-full object-contain sm:max-h-60" />
             </div>
 
-            <div className="mt-8 max-w-2xl space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#b29153]/35 bg-white/65 px-4 py-2 font-medium text-[#2b1853] text-sm shadow-sm">
-                <ShieldCheck className="size-4 text-[#007f8e]" />
+            <div className="mt-5 max-w-2xl space-y-2">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#b29153]/35 bg-white/65 px-3 py-1.5 font-medium text-[#2b1853] text-xs shadow-sm">
+                <ShieldCheck className="size-3.5 text-[#007f8e]" />
                 Safe at home. Strong in life.
               </div>
-              <h1 className="font-semibold text-4xl leading-tight sm:text-5xl">
+              <h1 className="font-semibold text-3xl leading-tight sm:text-4xl">
                 A secure workspace for care, response, and dignity.
               </h1>
-              <p className="mx-auto max-w-xl text-[#4e4666] text-base leading-7">
+              <p className="mx-auto max-w-xl text-[#4e4666] text-sm leading-6">
                 Access protected case coordination, survivor support records, and trusted operational tools from one calm, private place.
               </p>
             </div>
 
-            <div className="mt-8 grid w-full max-w-2xl gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid w-full max-w-2xl gap-2 sm:grid-cols-3">
               {[
                 { icon: HeartHandshake, label: "Support" },
                 { icon: Sparkles, label: "Empower" },
@@ -58,7 +53,7 @@ export default function LoginV1() {
         <section className="flex h-dvh items-center justify-center overflow-hidden px-5 py-4 sm:px-8 lg:px-12">
           <div className="w-full max-w-[29rem]">
             <div className="mb-8 lg:hidden">
-              <BrandingLogo className="mx-auto h-auto w-full max-w-xs rounded-2xl shadow-xl" />
+              <BrandingLogo className="mx-auto h-auto max-h-48 w-full max-w-xs object-contain" />
             </div>
 
             <div className="rounded-2xl border border-[#ead9c6] bg-white/90 p-6 shadow-[0_24px_70px_rgba(42,24,83,0.14)] backdrop-blur sm:p-8">
